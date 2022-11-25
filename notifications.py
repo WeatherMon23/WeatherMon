@@ -2,7 +2,7 @@ import ubinascii
 import urequests as requests
 
 
-class SendGrid:
+class SendGridEmail:
     def __init__(self, sender_address, sender_auth):
         self.sender_address = sender_address
         self.SendGrid_sender_auth = sender_auth
