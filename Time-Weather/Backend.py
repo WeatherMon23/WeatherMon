@@ -13,7 +13,8 @@ def fetch_time(timezone = 3):
 import urequests
 import ujson
 
-################# WEATHER #######################
+################# WEATHER FROM API #######################
+# Fetches weather from: https://openweathermap.org
 
 # returns current public IP
 def _get_curr_ip():
@@ -25,6 +26,11 @@ def _get_lat_long_from_curr_ip():
     ip = _get_curr_ip()
     latlong = urequests.get('https://ipapi.co/{}/latlong/'.format(ip)).text.split(',')
     return latlong
+
+def _get_city_from_curr_ip():
+    ip = _get_curr_ip()
+    city = urequests.get('https://ipapi.co/{}/city/'.format(ip)).text
+    return city
 
 # In the site we fetch the weather from, the dictionary is:
 # 'standard' = 'Kelvin'
@@ -39,7 +45,7 @@ def _parse_units(units):
     
 
 # returns all weather info as json
-def _get_weather_json_online(apikey, units):
+def _get_weather_json_from_api(apikey, units):
     units_string = _parse_units(units)
     if units_string is None:
         raise Exception('Units must either be : K, F, C')
@@ -49,17 +55,52 @@ def _get_weather_json_online(apikey, units):
     json_data = ujson.loads((req))
     return json_data
 
+# returns : https://openweathermap.org/img/wn/{id}@2x.png
+def _fetch_icon_url_from_id(icon_id):
+    return 'https://openweathermap.org/img/wn/{}@2x.png'.format(icon_id)
+
 # Returns a dictionary that contains:
 # [city, date, pressure (hPa units), temperature, humidity (%), wind speed (if imperial: miles/hour else meter/second), discription, icon-id] 
-def fetch_local_weather_online(apikey, units):
-    json_data = _get_weather_json_online(apikey, units)
+def fetch_local_weather_from_api(apikey, units):
+    json_data = _get_weather_json_from_api(apikey, units)
     return {'city' : json_data["city"]["name"], 'date' : json_data["list"][0]["dt_txt"],
             'pressure' : json_data["list"][0]["main"]["pressure"], 'temperature' : json_data["list"][0]["main"]["temp"],
             'humidity' : json_data["list"][0]["main"]["humidity"], 'wind' : json_data["list"][0]["wind"]["speed"],
-            'description' : json_data["list"][0]["weather"][0]["description"], 'icon-id' : json_data["list"][0]["weather"][0]["icon"]}
+            'description' : json_data["list"][0]["weather"][0]["description"], 'icon-url' : _fetch_icon_url_from_id(json_data["list"][0]["weather"][0]["icon"])}
 
-# returns : https://openweathermap.org/img/wn/{id}@2x.png
-def fetch_icon_url_from_id(icon_id):
-    return 'https://openweathermap.org/img/wn/{}@2x.png'.format(icon_id)
-    
+
+
+################# WEATHER FROM wttr.in #######################
+# Fetches the weather from : https://wttr.in/{city}
+
+# If the city contains spaces e.g. Ramat Gan, then the parameter should contain + instead of space,
+# e.g. Ramat+Gan
+def _get_weather_json_from_web(city):
+    req_text = urequests.get("https://wttr.in/{}?format=j1".format(city)).text
+    json_data = ujson.loads((req_text))
+    return json_data
+
+def _get_temp_id(units):
+    dictionary = {'C' : 'temp_C', 'F' : 'temp_F'}
+    return dictionary.get(units, None)
+
+# TODO: Implement this function, need to check all possible descriptions and maybe create a dictionary!
+def _fetch_icon_url_from_desc(desc):
+    return None
+
+# TODO: Function is too slow, because json is too big.. try and make it faster!
+# Returns a dictionary that contains:
+# [city, date, pressure (hPa units), temperature, humidity (%), wind speed (meter/second), description, icon-id] 
+def fetch_local_weather_from_web(units):
+    temp_id = _get_temp_id(units)
+    if temp_id is None:
+        raise Exception('Units must either be : F, C')
+    city = _get_city_from_curr_ip()
+    city_m = city.replace(' ', '+')
+    json_data = _get_weather_json_from_web(city_m)
+    json_data = json_data['current_condition'][0]
+    return {'city' : city, 'date' : json_data["localObsDateTime"],
+            'pressure' : json_data["pressure"], 'temperature' : json_data["temp_C"],
+            'humidity' : json_data["humidity"], 'wind' : str(round(float(json_data["windspeedKmph"])*0.277778, 2)),
+            'description' : json_data["weatherDesc"][0]["value"], 'icon-url' : _fetch_icon_url_from_desc(json_data["weatherDesc"][0]["value"])}
     
