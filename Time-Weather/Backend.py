@@ -4,11 +4,28 @@ from uiflow import *
 
 ################# TIME #######################
 
+def _get_month(month):
+    dictionary = {1 : 'Jan', 2 : 'Feb', 3 : 'Mar', 4:'Apr', 5:'May', 6:'Jun',
+                  7 : 'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12: 'Dec'}
+    return dictionary.get(month, None)
+
+def _add_left_zero(str):
+    if len(str) == 1:
+        return '0' + str
+    else:
+        return str
+
 # Fetches the exact time from host: cn.pool.ntp.org
-def fetch_time(timezone = 3):
-    rtc.settime('ntp', host='cn.pool.ntp.org', tzone=3)
+def fetch_time(timezone = 3, host = 'cn.pool.ntp.org'):
+    rtc.settime('ntp', host=host, tzone=3)
     time_info = rtc.datetime()
     return str(time_info[4]) + str(":") + str(time_info[5])
+
+def fetch_date_time(timezone = 3, host = 'cn.pool.ntp.org'):
+    rtc.settime('ntp', host=host, tzone=3)
+    time_info = rtc.datetime()
+    res = _add_left_zero(str(time_info[2])) + str(' ') + _get_month(time_info[1]) + str(' ') + _add_left_zero(str(time_info[4])) + str(":") + _add_left_zero(str(time_info[5]))
+    return res
 
 import urequests
 import ujson
@@ -76,7 +93,7 @@ def fetch_local_weather_from_api(apikey, units):
 # If the city contains spaces e.g. Ramat Gan, then the parameter should contain + instead of space,
 # e.g. Ramat+Gan
 def _get_weather_json_from_web(city):
-    req_text = urequests.get("https://wttr.in/{}?format=j1".format(city)).text
+    req_text = urequests.get("https://wttr.in/{}?format=j2".format(city)).text
     json_data = ujson.loads((req_text))
     return json_data
 
@@ -98,9 +115,11 @@ def fetch_local_weather_from_web(units):
     city = _get_city_from_curr_ip()
     city_m = city.replace(' ', '+')
     json_data = _get_weather_json_from_web(city_m)
+    weather = json_data['weather'][0]
     json_data = json_data['current_condition'][0]
     return {'city' : city, 'date' : json_data["localObsDateTime"],
-            'pressure' : json_data["pressure"], 'temperature' : json_data["temp_C"],
-            'humidity' : json_data["humidity"], 'wind' : str(round(float(json_data["windspeedKmph"])*0.277778, 2)),
-            'description' : json_data["weatherDesc"][0]["value"], 'icon-url' : _fetch_icon_url_from_desc(json_data["weatherDesc"][0]["value"])}
+            'pressure' : json_data["pressure"], 'temperature' : str(json_data[temp_id]),
+            'humidity' : str(json_data["humidity"]), 'wind' : str(round(float(json_data["windspeedKmph"])*0.277778, 2)),
+            'description' : json_data["weatherDesc"][0]["value"], 'icon-url' : _fetch_icon_url_from_desc(json_data["weatherIconUrl"][0]["value"]),
+            'uv-index' : weather["uvIndex"]}
     
