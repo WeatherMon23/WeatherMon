@@ -1,3 +1,4 @@
+import random
 import ubinascii
 import urequests as requests
 
@@ -18,6 +19,13 @@ class SendGridEmail:
             print('Failed Sending Email: ' + str(e))
         print('Email Sent With Status Code: ' + str(response.status_code))
         print('Response: ' + response.text)
+        
+    def verf_code(self, receiver_address, code_len=8):
+      max_number = 10**code_len - 1
+      code = str(random.randint(0, max_number))
+      code = '0'*(code_len-len(code)) + code
+      self.send_email('Verification Code', 'Use verification code ' + code + ' for authentication.', receiver_address)
+      return code
 
 
 class TwilioSMS:
@@ -39,6 +47,13 @@ class TwilioSMS:
             print('Failed Sending SMS: ' + str(e))
         print('SMS Sent With Status Code: ' + str(response.status_code))
         print('Response: ' + response.text)
+        
+    def verf_code(self, to_number, code_len=8):
+      max_number = 10**code_len - 1
+      code = str(random.randint(0, max_number))
+      code = '0'*(code_len-len(code)) + code
+      self.send_sms('Use verification code ' + code + ' for authentication.', to_number)
+      return code
 
 
 class TwilioWhatsApp:
@@ -61,3 +76,10 @@ class TwilioWhatsApp:
             print('Failed Sending WhatsApp Message: ' + str(e))
         print('WhatsApp Message Sent With Status Code: ' + str(response.status_code))
         print('Response: ' + response.text)
+        
+    def verf_code(self, to_number, code_len=8):
+      max_number = 10**code_len - 1
+      code = str(random.randint(0, max_number))
+      code = '0'*(code_len-len(code)) + code
+      self.send_sms('Use verification code ' + code + ' for authentication.', to_number)
+      return code
