@@ -1,9 +1,11 @@
 from m5stack import *
 from m5stack_ui import *
 from uiflow import *
-from Connection import *
+from connection import *
 
 ################# TIME #######################
+_NULL_TIME = '00:00'
+_NULL_DATE_TIME = '01 Jan 00:00'
 
 def _get_month(month):
     dictionary = {1 : 'Jan', 2 : 'Feb', 3 : 'Mar', 4:'Apr', 5:'May', 6:'Jun',
@@ -18,12 +20,19 @@ def _add_left_zero(str):
 
 # Fetches the exact time from host: cn.pool.ntp.org
 def fetch_time(timezone = 3, host = 'cn.pool.ntp.org'):
-    check_connection()
+    try:
+        check_connection()
+    except Exception as e:
+        return _NULL_TIME
     rtc.settime('ntp', host=host, tzone=3)
     time_info = rtc.datetime()
     return str(time_info[4]) + str(":") + str(time_info[5])
 
 def fetch_date_time(timezone = 3, host = 'cn.pool.ntp.org'):
+    try:
+        check_connection()
+    except Exception as e:
+        return _NULL_DATE_TIME
     rtc.settime('ntp', host=host, tzone=3)
     time_info = rtc.datetime()
     res = _add_left_zero(str(time_info[2])) + str(' ') + _get_month(time_info[1]) + str(' ') + _add_left_zero(str(time_info[4])) + str(":") + _add_left_zero(str(time_info[5]))
@@ -69,7 +78,10 @@ def _get_weather_json_from_api(apikey, units_string):
     latlong = _get_lat_long_from_curr_ip()
     req = urequests.get('https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}&units=metric&cnt=1'
                         .format(latlong[0], latlong[1], apikey)).text
-    json_data = ujson.loads((req))
+    try:
+        json_data = ujson.loads((req))
+    except Exception as e:
+        raise Exception(__name__ + ': Error fetching info from API')
     return json_data
 
 # returns : https://openweathermap.org/img/wn/{id}@2x.png
@@ -101,9 +113,11 @@ def fetch_local_weather_from_api(apikey, units):
 
 # If the city contains spaces e.g. Ramat Gan, then the parameter should contain + instead of space,
 # e.g. Ramat+Gan
-def _get_weather_json_from_web(city):
+def _get_weather_json_from_web():
     check_connection()
-    req_text = urequests.get("https://wttr.in/{}?format=j2".format(city)).text
+    city = _get_city_from_curr_ip()
+    city_m = city.replace(' ', '+')
+    req_text = urequests.get("https://wttr.in/{}?format=j2".format(city_m)).text
     try:
         json_data = ujson.loads((req_text))
     except Exception as e:
@@ -125,10 +139,8 @@ def fetch_local_weather_from_web(units):
     temp_id = _get_temp_id(units)
     if temp_id is None:
         raise Exception(__name__ + ': Units must either be : F, C')
-    city = _get_city_from_curr_ip()
-    city_m = city.replace(' ', '+')
     try:
-        json_data = _get_weather_json_from_web(city_m)
+        json_data = _get_weather_json_from_web()
     except Exception as e:
         return {'city' : 'N/A', 'date' : 'N/A', 'pressure' : 'N/A', 'temperature' : 'N/A',
             'humidity' : 'N/A', 'wind' : 'N/A', 'description' : 'N/A', 'icon-url' : 'res/error.png',

@@ -4,7 +4,7 @@ from uiflow import *
 import lvgl as lv
 
 # We encapsulated the M5Btn class since it doesn't have getters for its internal variables
-class M5Fadingbtn():
+class FadingBtn():
   def _btn_pressed(self): 
     self.btn.set_pos(10, 70)
     self.btn.set_size(300, 100)
