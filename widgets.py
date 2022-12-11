@@ -3,41 +3,69 @@ from m5stack_ui import *
 from uiflow import *
 import lvgl as lv
 
-# We encapsulated the M5Btn class since it doesn't have getters for its internal variables
-class FadingBtn():
-  def _btn_pressed(self): 
-    self.btn.set_pos(10, 70)
-    self.btn.set_size(300, 100)
-    self.btn.set_btn_text(self.text)
-    self.btn.set_bg_color(self.bg_c)
-    self.btn.set_btn_text_color(self.text_c)
-    self.btn.set_btn_text_font(FONT_MONT_34)
-  pass
+LV_HOR_RES=320
+LV_VER_RES=240
 
-  def _btn_released(self):
-    self.btn.set_pos(self.x, self.y)
-    self.btn.set_size(self.w, self.h)
-    self.btn.set_btn_text(self.text)
-    self.btn.set_bg_color(self.bg_c)
-    self.btn.set_btn_text_color(self.text_c)
-    self.btn.set_btn_text_font(FONT_MONT_14)
-  pass
+# A button which gets while holding a press and gets to normal size upon release
+class FadingBtn(lv.btn):
+  def _event_handler(self, source, evt):
+    if evt == lv.EVENT.PRESSING:
+        super().set_pos(10, 70)
+        super().set_size(300, 100)
+        self.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT,lv.font_montserrat_34)
 
-  def __init__(self, text, x=0, y=0, w=70, h=30, bg_c=0xFFFFFF, text_c=0x000000, parent = None):
-    self.w = w
-    self.h = h
-    self.x = x
-    self.y = y
-    self.bg_c = bg_c
-    self.text_c = text_c
-    self.text = text
-    self.btn = M5Btn(text, x, y, w, h, bg_c, text_c, FONT_MONT_14, parent)
-    self.btn.pressed(self._btn_pressed)
-    self.btn.released(self._btn_released)
+    elif evt == lv.EVENT.RELEASED:
+        super().set_pos(self.primal_x, self.primal_y)
+        super().set_size(self.primal_w, self.primal_h)
+        self.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT,lv.font_montserrat_14)
     
-  def set_btn_text(self, text):
-      self.text = text
-      self.btn.set_btn_text(text)
+    
+  def __init__(self, text, x=0, y=0, w=70, h=30, bg_c=0xFFFFFF, text_c=0x000000, b_c=0x000000, rad = 1, parent = lv.scr_act()):
+    super().__init__(parent, None)
+    self.primal_x = x
+    self.primal_y = y
+    self.primal_w = w
+    self.primal_h = h
+    btn_label=lv.label(self ,None)
+    btn_label.set_text(text)
+    self.set_pos(x,y)
+    self.set_size(w,h)
+    self.set_checkable(False)
+    btn_style = lv.style_t()
+    btn_style.init()
+    btn_style.set_border_color(lv.STATE.DEFAULT, lv.color_hex(b_c))
+    btn_style.set_border_width(lv.STATE.DEFAULT, 1)
+    btn_style.set_radius(lv.STATE.DEFAULT, 10)
+    btn_style.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(bg_c))
+    btn_style.set_text_color(lv.STATE.DEFAULT, lv.color_hex(text_c))
+    self.add_style(self.PART.MAIN, btn_style)
+    self.set_event_cb(self._event_handler)
+    
+  def set_pos(self, x,y):
+    super().set_pos(x,y)
+    self.primal_x = x
+    self.primal_y = y
+  
+  def set_x(self, x):
+    super().set_x(x)
+    self.primal_x = x
+    
+  def set_y(self, y):
+    super().set_y(y)
+    self.primal_y = y
+    
+  def set_size(self, w,h):
+    super().set_size(w,h)
+    self.primal_w = w
+    self.primal_h = h
+  
+  def set_width(self, w):
+    super().set_width(w)
+    self.primal_w = w
+    
+  def set_height(self, h):
+    super().set_height(h)
+    self.primal_h = h
       
     
 class Title():
