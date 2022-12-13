@@ -154,10 +154,92 @@ class Title():
     def remove_cloud(self):
         self.icon2.delete()
         self.icon2 = None
+
+
+class _DialogBase():
+    def _opa_anim(self, mbox,v):
+        bg = lv.obj.__cast__(mbox)
+        mbox.get_parent().set_style_local_bg_opa(lv.obj.PART.MAIN, lv.STATE.DEFAULT, v)
+    
+    def _mbox_event_cb(self, obj, evt):
+        if evt == lv.EVENT.DELETE:
+            # Delete the parent modal background 
+            lv.obj.del_async(obj.get_parent())
+        elif evt == lv.EVENT.VALUE_CHANGED:
+            # a button was clicked
+            obj.start_auto_close(0)
+            
+    def _get_btns_from_case(self, case):
+        if case == 0:
+            return ["Close", ""]
+        elif case == 1:
+            return ["OK", "Cancel", ""]
+        else:
+            return [""] # Shouldn't get here!
+    
+    # case 0: Alert
+    # case 1: Confirmation
+    # It would be very easy to add more cases!
+    def __init__(self, text, title, case):
+        obj = lv.obj(lv.scr_act(), None)
+        style_modal = lv.style_t()
+        style_modal.init()
+        style_modal.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(0x000000))
+        obj.reset_style_list(lv.obj.PART.MAIN)
+        obj.add_style(lv.obj.PART.MAIN, style_modal)
+        obj.set_pos(0, 0)
+        obj.set_size(LV_HOR_RES, LV_VER_RES)
+
+        # Create the message box as a child of the modal background 
+        mbox = lv.msgbox(obj, None)
+        mbox_style = lv.style_t()
+        mbox_style.init()
+        label_style = lv.style_t()
+        label_style.init()
+        btn_style = lv.style_t()
+        btn_style.init()
+        btn_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_18)
         
+        
+        if title:
+            mlabel = lv.label(mbox, None)
+            mlabel.set_text(text)
+            mlabel.set_long_mode(mlabel.LONG.BREAK)
+            label_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_18)
+            label_style.set_pad_hor(lv.STATE.DEFAULT, 50)
+            mlabel.add_style(mlabel.PART.MAIN, label_style)
+            mlabel.set_align(mlabel.ALIGN.CENTER)
+            mbox_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_26)
+            mbox.set_text(title)
+        else:
+            mbox_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_18)
+            mbox.set_text(text)
+        
+        btns2 = self._get_btns_from_case(case)
+        mbox.add_btns(btns2);
+        mbox.add_style(mbox.PART.BG, mbox_style)
+        mbox.add_style(mbox.PART.BTN, btn_style)
+        mbox.set_width(250)
+        mbox.align(None, lv.ALIGN.CENTER, 0, 0)
+        mbox.set_event_cb(self._mbox_event_cb)
+        mbox.set_anim_time(0)
+            
+        # Fade the message box in with an animation 
+        a=lv.anim_t()
+        a.init()
+        a.set_var(obj)
+        a.set_time(100)
+        a.set_values(lv.OPA.TRANSP, lv.OPA._70)
+        a.set_custom_exec_cb(lambda a, val: self._opa_anim(mbox,val))
+        lv.anim_t.start(a)
+        
+class Alert(_DialogBase):
+    def __init__(self, text, title = ''):
+        super().__init__(text, title, 0)
 
-
-
+class Confirmation(_DialogBase):
+    def __init__(self, text, title = ''):
+        super().__init__(text, title, 1)
 
 
 
