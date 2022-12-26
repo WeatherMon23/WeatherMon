@@ -1,3 +1,4 @@
+import lvgl as lv
 from m5stack import *
 from m5stack_ui import *
 from uiflow import *
@@ -6,10 +7,31 @@ screen = M5Screen()
 screen.clean_screen()
 screen.set_screen_bg_color(0xFFFFFF)
 
+_DEFAULT_TEXT_COLOR = 0x000000
+_DEFAULT_THEME_COLOR = 0x228B22
+_DEFAULT_DISABLED_COLOR = 0xf2f2f2
+_DEFAULT_RADIUS = 8
+_DEFAULT_FONT = lv.font_montserrat_14
+'''
+Fonts:
+- lv.font_montserrat_10
+- lv.font_montserrat_14
+- lv.font_montserrat_18
+- lv.font_montserrat_22
+- lv.font_montserrat_26
+- lv.font_montserrat_30
+- lv.font_montserrat_34
+- lv.font_montserrat_38
+- lv.font_montserrat_48
+- lv.font_PHT_unicode_24
+'''
+
 
 class LLabel(lv.label):
-    def __init__(self, text, width, color=0x000000, long_mode=lv.label.LONG.EXPAND, alignment=lv.label.ALIGN.CENTER):
+    def __init__(self, x=0, y=0, text='', font=_DEFAULT_FONT, text_color=_DEFAULT_TEXT_COLOR, width=150,
+                 long_mode=lv.label.LONG.EXPAND, alignment=lv.label.ALIGN.CENTER):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
         self.set_text(text)
         self.set_long_mode(long_mode)
         '''
@@ -29,9 +51,11 @@ class LLabel(lv.label):
         '''
         style_main = lv.style_t()
         style_main.init()
-        style_main.set_text_color(lv.STATE.DEFAULT, lv.color_hex(color))
+        style_main.set_text_font(lv.STATE.DEFAULT, font)
+        style_main.set_text_color(lv.STATE.DEFAULT, lv.color_hex(text_color))
         self.add_style(self.PART.MAIN, style_main)
 
+    # func() returns a string to be displayed inside the label
     def d_refresh(self, func=None, *args):
         if not func:
             return
@@ -40,8 +64,11 @@ class LLabel(lv.label):
 
 
 class LCheckbox(lv.checkbox):
-    def __init__(self, text, color=0x228B22):
+    def __init__(self, x=0, y=0, text='', text_color=_DEFAULT_TEXT_COLOR, color=_DEFAULT_THEME_COLOR,
+                 state=lv.btn.STATE.RELEASED):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
+        self.set_state(state)
         self.set_text(text)
 
         style_bullet = lv.style_t()
@@ -53,9 +80,12 @@ class LCheckbox(lv.checkbox):
 
         style_bg = lv.style_t()
         style_bg.init()
+        style_bg.set_text_color(lv.STATE.DEFAULT, lv.color_hex(text_color))
+        style_bg.set_text_font(lv.STATE.DEFAULT, font)
         style_bg.set_outline_width(lv.STATE.DEFAULT, 0)
         self.add_style(self.PART.BG, style_bg)
 
+    # func() reutrns a boolean represeting the new state of the checkbox
     def d_refresh(self, func=None, *args):
         if not func:
             return
@@ -64,8 +94,9 @@ class LCheckbox(lv.checkbox):
 
 
 class LLine(lv.line):
-    def __init__(self, length, is_vertical=False, width=1, color=0x000000):
+    def __init__(self, x=0, y=0, length=50, is_vertical=False, width=1, color=_DEFAULT_THEME_COLOR):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
         start_point, end_point = {"x": 0, "y": 0}, {"x": 0, "y": length}
         if is_vertical:
             end_point = {"x": length, "y": 0}
@@ -82,9 +113,13 @@ class LLine(lv.line):
         return
 
 
+# TODO: Create the class ALTLines which creates lines from a set of points
+
 class LTable(lv.table):
-    def __init__(self, data, num_of_cols, width):
+    def __init__(self, x=0, y=0, data=[], text_color=_DEFAULT_TEXT_COLOR, font=_DEFAULT_FONT,
+                 align=lv.label.ALIGN.CENTER, num_of_cols=0, width=0):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
         self._num_of_cols = num_of_cols
         self.set_col_cnt(num_of_cols)
         for i in range(len(data) / num_of_cols):
@@ -99,9 +134,12 @@ class LTable(lv.table):
 
         style_bg = lv.style_t()
         style_bg.init()
+        style_bg.set_text_color(lv.STATE.DEFAULT, lv.color_hex(text_color))
+        style_bg.set_text_font(lv.STATE.DEFAULT, font)
         style_bg.set_border_width(lv.STATE.DEFAULT, 0)
         self.add_style(self.PART.BG, style_bg)
 
+    # func() returns a list of strings to be desplayed inside the table (including headers)
     def d_refresh(self, func=None, *args):
         if not func:
             return
@@ -112,8 +150,9 @@ class LTable(lv.table):
 
 
 class LSwitch(lv.switch):
-    def __init__(self, color=0x228B22):
+    def __init__(self, x=0, y=0, color=_DEFAULT_THEME_COLOR):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
         self.set_anim_time(100)
 
         style_indic = lv.style_t()
@@ -128,6 +167,7 @@ class LSwitch(lv.switch):
         style_bg.set_outline_width(lv.STATE.DEFAULT, 0)
         self.add_style(self.PART.BG, style_bg)
 
+    # func() returns a boolean representing the new status of the switch
     def d_refresh(self, func=None, *args):
         if not func:
             return
@@ -138,10 +178,12 @@ class LSwitch(lv.switch):
 
 
 class LCpicker(lv.cpicker):
-    def __init__(self, height):
+    def __init__(self, x=0, y=0, length=150):
         super().__init__(lv.scr_act())
-        self.set_size(height, height)  # Changing Type crashes the device  # self.set_type(lv.cpicker.TYPE.RECT)
+        self.set_pos(x, y)
+        self.set_size(length, length)  # self.set_type(lv.cpicker.TYPE.RECT) - Changing Type crashes the device
 
+    # func() returns a color to be set for the color picker
     def d_refresh(self, func=None, *args):
         if not func:
             return
@@ -150,8 +192,9 @@ class LCpicker(lv.cpicker):
 
 
 class LDropdown(lv.dropdown):
-    def __init__(self, options, color=0x228B22):
+    def __init__(self, x=0, y=0, options=[], color=_DEFAULT_THEME_COLOR):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
         self.set_options("\n".join(options))
 
         style_main = lv.style_t()
@@ -167,6 +210,7 @@ class LDropdown(lv.dropdown):
         style_selected.set_bg_color(lv.STATE.DEFAULT, lighter_color)
         self.add_style(self.PART.SELECTED, style_selected)
 
+    # func() returns a list of strings to be filled into the drop-down
     def d_refresh(self, func=None, *args):
         if not func:
             return
@@ -176,8 +220,9 @@ class LDropdown(lv.dropdown):
 
 
 class LRoller(lv.roller):
-    def __init__(self, options, mode=lv.roller.MODE.INFINITE, color=0x228B22):
+    def __init__(self, x=0, y=0, options=[], mode=lv.roller.MODE.INFINITE, color=_DEFAULT_THEME_COLOR):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
         self._mode = mode
         self.set_options("\n".join(options), mode)
         '''
@@ -197,6 +242,7 @@ class LRoller(lv.roller):
         style_selected.set_bg_color(lv.STATE.DEFAULT, lighter_color)
         self.add_style(self.PART.SELECTED, style_selected)
 
+    # func() returns a list of strings to be filled into the roller
     def d_refresh(self, func=None, *args):
         if not func:
             return
@@ -205,8 +251,9 @@ class LRoller(lv.roller):
 
 
 class LSlider(lv.slider):
-    def __init__(self, width, min_value=0, max_value=100, color=0x228B22):
+    def __init__(self, x=0, y=0, width=150, min_value=0, max_value=100, color=_DEFAULT_THEME_COLOR):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
         self.set_width(width)
         self.set_range(min_value, max_value)
 
@@ -226,6 +273,7 @@ class LSlider(lv.slider):
         style_knob.set_bg_color(lv.STATE.DEFAULT, darker_color)
         self.add_style(self.PART.KNOB, style_knob)
 
+    # func() returns an integer between min_value and max_value (including) to be represented in the slider
     def d_refresh(self, func=None, *args):
         if not func:
             return
@@ -234,10 +282,12 @@ class LSlider(lv.slider):
 
 
 class Lbtn(lv.btn):
-    def __init__(self, text, width, is_toggled=False, color=0x228B22, radius=8):
+    def __init__(self, x=0, y=0, text='', width=100, is_toggled=False, color=_DEFAULT_THEME_COLOR,
+                 font=lv.font_montserrat_14, text_color=_DEFAULT_TEXT_COLOR, radius=_DEFAULT_RADIUS):
         super().__init__(lv.scr_act())
-        label_button = LLabel(text, 200)
-        label_button.set_parent(self)
+        self.set_pos(x, y)
+        self._label_button = LLabel(text=text, font=font, text_color=text_color)
+        self._label_button.set_parent(self)
         self.set_checkable(is_toggled)
 
         style_main = lv.style_t()
@@ -251,13 +301,19 @@ class Lbtn(lv.btn):
         style_main.set_border_color(lv.STATE.DEFAULT, lv.color_hex(color))
         self.add_style(self.PART.MAIN, style_main)
 
+    # func() returns a string to be displayed inside the button
     def d_refresh(self, func=None, *args):
-        return
+        if not func:
+            return
+        new_data = func(*args)
+        self._label_button.set_text(new_data)
 
 
 class LChart(lv.chart):
-    def __init__(self, height, width, min_val, max_val, input_vector, chart_type=lv.chart.TYPE.COLUMN, is_faded=True):
+    def __init__(self, x=0, y=0, height=150, width=200, min_val=0, max_val=100, input_vector=[],
+                 chart_type=lv.chart.TYPE.COLUMN, is_faded=True):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
         self._series = list()
         self.set_size(width, height)
         self.set_type(chart_type)
@@ -283,7 +339,7 @@ class LChart(lv.chart):
             self._series.append(tmp_ser)
         self.refresh()
 
-
+    # func() returns data in the following format: `[(0xff0000, [point1, point2, point3]), (0x00ff00, [point1, point2, point3])]` to draw a new series inside the chart
     def d_refresh(self, func=None, *args):
         if not func:
             return
@@ -297,14 +353,36 @@ class LChart(lv.chart):
         self.refresh()
 
 
-class LCont(lv.cont):
-    def __init__(self, height, width, color, radius = 8):
+class LContainer(lv.cont):
+    def __init__(self, x=0, y=0, height=150, width=150, color=_DEFAULT_THEME_COLOR, layout=lv.LAYOUT.OFF,
+                 fit=lv.FIT.NONE, radius=8):
         super().__init__(lv.scr_act())
+        self.set_pos(x, y)
         self.set_auto_realign(False)  # Disable auto realign when the size changes
-        self.set_fit(lv.FIT.NONE)  # Do not change the size automatically around the children
-        self.set_layout(lv.LAYOUT.OFF)  # Do not align the children
-        self.set_size(height, width)
-        
+        self.set_fit(fit)
+        '''
+        lv.FIT.NONE - Do not change the size automatically.
+        lv.FIT.TIGHT - Shrink-wrap the container around all of its children, while keeping pad_top/bottom/left/right space on the edges.
+        lv.FIT.PARENT - Set the size to the parent's size minus pad_top/bottom/left/right (from the parent's style) space.
+        lv.FIT.MAX - Use lv.FIT.PARENT while smaller than the parent and lv.FIT.TIGHT when larger. It will ensure that the container is, at minimum, the size of its parent.
+        '''
+        self.set_layout(layout)
+        '''
+        lv.LAYOUT.OFF - Do not align the children.
+        lv.LAYOUT.CENTER - Align children to the center in column and keep pad_inner space between them.
+        lv.LAYOUT.COLUMN_LEFT - Align children in a left-justified column. Keep pad_left space on the left, pad_top space on the top and pad_inner space between the children.
+        lv.LAYOUT.COLUMN_MID - Align children in centered column. Keep pad_top space on the top and pad_inner space between the children.
+        lv.LAYOUT.COLUMN_RIGHT - Align children in a right-justified column. Keep pad_right space on the right, pad_top space on the top and pad_inner space between the children.
+        lv.LAYOUT.ROW_TOP - Align children in a top justified row. Keep pad_left space on the left, pad_top space on the top and pad_inner space between the children.
+        lv.LAYOUT.ROW_MID - Align children in centered row. Keep pad_left space on the left and pad_inner space between the children.
+        lv.LAYOUT.ROW_BOTTOM - Align children in a bottom justified row. Keep pad_left space on the left, pad_bottom space on the bottom and pad_inner space between the children.
+        lv.LAYOUT.PRETTY_TOP - Put as many objects as possible in a row (with at least pad_inner space and pad_left/right space on the sides). Divide the space in each line equally between the children. If here are children with different height in a row align their top edge.
+        lv.LAYOUT.PRETTY_MID - Same as lv.LAYOUT.PRETTY_TOP but if here are children with different height in a row align their middle line.
+        lv.LAYOUT.PRETTY_BOTTOM - Same as lv.LAYOUT.PRETTY_TOP but if here are children with different height in a row align their bottom line.
+        lv.LAYOUT.GRID - Similar to lv.LAYOUT.PRETTY but not divide horizontal space equally just let pad_left/right on the edges and pad_inner space between the elements.
+        '''
+        self.set_size(width, height)
+
         style_main = lv.style_t()
         style_main.init()
         darker_color = lv.color_t.color_darken(lv.color_hex(color), 30)
@@ -313,16 +391,16 @@ class LCont(lv.cont):
         style_main.set_radius(lv.STATE.DEFAULT, radius)
         style_main.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(color))
         self.add_style(self.PART.MAIN, style_main)
-    
-    
+
     def d_refresh(self, func=None, *args):
         return
-        
 
-class _Widget(LCont):
+
+class _Widget(LContainer):
     def __init__(self, board, height, width, row, col, color, is_place_holder):
         height_in_pixels = board.block_size * height + (height - 1) * board.split_size
-        super().__init__(board.block_size * width + (width - 1) * board.split_size, height_in_pixels, color)
+        super().__init__(height=board.block_size * width + (width - 1) * board.split_size, width=height_in_pixels,
+                         color=color)
         if not (0 <= row < board.rows_num) or (not 0 <= col < board.cols_num) or not (
                 row + height <= board.rows_num) or (not col + width <= board.cols_num) or height <= 0 or width <= 0:
             raise Exception('Invalid Parameters')
@@ -336,14 +414,14 @@ class _Widget(LCont):
         left_cords = board.block_size * col + board.split_size * (1 + col)
 
         self.set_pos(left_cords, height_cords)
-        
+
         def event_handler(source, event):
             if event == lv.EVENT.LONG_PRESSED and not self.is_place_holder:
                 # Delete widget from main board
                 self._board.delete_widget(self)
 
         self.set_event_cb(event_handler)
-        
+
         for i in range(height):
             for j in range(width):
                 self.reserved_blocks.append([row + i, col + j])
@@ -354,7 +432,8 @@ class Board:
         for row in range(self.rows_num):
             for col in range(self.cols_num):
                 # Filling the board with place-holders
-                empty_block = _Widget(self, 1, 1, row, col, self._default_color, True)
+                empty_block = _Widget(board=self, height=1, width=1, row=row, col=col, color=self._default_color,
+                                      is_place_holder=True)
                 if not self._show_place_holders:
                     empty_block.set_hidden(True)
                 self._background_blocks.append(empty_block)
@@ -368,14 +447,14 @@ class Board:
         self._colored_blocks = list()
 
     def __init__(self, top_margin, block_size, split_size, rows_num, cols_num, show_place_holders=True,
-                 default_color=0xf2f2f2):
+                 _default_color=_DEFAULT_DISABLED_COLOR):
         self.top_margin = top_margin
         self.block_size = block_size
         self.split_size = split_size
         self.rows_num = rows_num
         self.cols_num = cols_num
         self._show_place_holders = show_place_holders
-        self._default_color = default_color
+        self._default_color = _default_color
         self._background_blocks = list()
         self._colored_blocks = list()
         self._init_board()
@@ -386,7 +465,7 @@ class Board:
             if any([row + i, col + j] in colored_block.reserved_blocks for colored_block in self._colored_blocks):
                 return None
 
-        widget = _Widget(self, height, width, row, col, color, False)
+        widget = _Widget(self, height=height, width=width, row=row, col=col, color=color, is_place_holder=False)
         self._colored_blocks.append(widget)
         # Hide background blocks
         for i, j in widget.reserved_blocks:
@@ -406,9 +485,49 @@ class Board:
             colored_block.delete()
         self._background_blocks = list()
         self._colored_blocks = list()
-        
+
     def d_refresh(self):
         child = self.get_child(None)
         while child:
-            child.d_refresh()
+            try:
+                child.d_refresh()
+            except AttributeError as e:
+                print(__name__ + ': ' + str(e))
             child = self.get_child(child)
+
+
+class FadingBtn(Lbtn):
+    def _event_handler(self, source, evt):
+        if evt == lv.EVENT.PRESSING:
+            super().set_pos(10, 70)
+            super().set_size(300, 100)
+            self.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_34)
+
+        elif evt == lv.EVENT.RELEASED:
+            super().set_pos(self.primal_x, self.primal_y)
+            super().set_size(self.primal_w, self.primal_h)
+            self.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, self.primal_font)
+
+    def __init__(self, x=0, y=0, text='', width=100, is_toggled=False, color=_DEFAULT_THEME_COLOR,
+                 font=lv.font_montserrat_14, text_color=_DEFAULT_TEXT_COLOR, radius=_DEFAULT_RADIUS):
+        super().__init__(x, y, text, width, is_toggled, color, font, text_color, radius)
+        self.set_event_cb(self._event_handler)
+
+    def set_pos(self, x, y):
+        super().set_pos(x, y)
+        self.primal_x = x
+        self.primal_y = y
+
+    def set_size(self, w, h):
+        super().set_size(w, h)
+        self.primal_w = w
+        self.primal_h = h
+
+
+# Running Examples:
+# vec = [(0xff0000, [10, 20, 30, 40, 10, 20, 30, 100, 10, 20])]
+# tmp = LChart(input_vector=vec, chart_type=lv.chart.TYPE.LINE)]]
+
+tmp = FadingBtn(text='hello world', x=100, y=200)
+
+
