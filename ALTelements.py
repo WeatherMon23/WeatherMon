@@ -2,6 +2,7 @@ import lvgl as lv
 from m5stack import *
 from m5stack_ui import *
 from uiflow import *
+from imagetools import get_png_info, open_png
 
 screen = M5Screen()
 screen.clean_screen()
@@ -29,7 +30,7 @@ Fonts:
 
 
 class ALTImage(lv.img):
-    def _init_(self, parent=lv.scr_act(), x=0, y=0, src='/flash/icons/wifi_green.png', radius=_DEFAULT_RADIUS):
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, src='/flash/icons/wifi_green.png'):
         super().__init__(parent)
         self.set_pos(x, y)
 
@@ -47,10 +48,6 @@ class ALTImage(lv.img):
         })
 
         self.set_src(png_img_dsc)
-        style_main = lv.style_t()
-        style_main.init()
-        style_main.set_radius(lv.STATE.DEFAULT, radius)
-        self.add_style(self.PART.MAIN, style_main)
 
 
 class ALTLabel(lv.label):
