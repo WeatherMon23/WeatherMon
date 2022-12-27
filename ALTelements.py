@@ -377,7 +377,7 @@ class ALTButton(lv.btn):
         self._label_button.set_text(new_data)
 
 
-class ALTFadingBtn(ALTButton):
+class ALTFadingButton(ALTButton):
     def _event_handler(self, source, evt):
         if evt == lv.EVENT.PRESSING:
             super().set_pos(10, 70)
@@ -627,4 +627,4 @@ class Board:
 # tmp = ALTChart(input_vector=vec, chart_type=lv.chart.TYPE.LINE)]]
 # 25x25 800 bytes
 # 50x50 1500 bytes
-tmp = ALTFadingBtn(x=100, y=100)
+tmp = ALTFadingButton(x=100, y=100)
