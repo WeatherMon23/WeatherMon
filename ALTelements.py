@@ -28,6 +28,31 @@ Fonts:
 '''
 
 
+class ALTImage(lv.img):
+    def _init_(self, parent=lv.scr_act(), x=0, y=0, src='/flash/icons/wifi_green.png', radius=_DEFAULT_RADIUS):
+        super().__init__(parent)
+        self.set_pos(x, y)
+
+        # Register PNG image decoder
+        decoder = lv.img.decoder_create()
+        decoder.info_cb = get_png_info
+        decoder.open_cb = open_png
+
+        with open(src, 'rb') as f:
+            png_data = f.read()
+
+        png_img_dsc = lv.img_dsc_t({
+            'data_size': len(png_data),
+            'data': png_data
+        })
+
+        self.set_src(png_img_dsc)
+        style_main = lv.style_t()
+        style_main.init()
+        style_main.set_radius(lv.STATE.DEFAULT, radius)
+        self.add_style(self.PART.MAIN, style_main)
+
+
 class ALTLabel(lv.label):
     def _event_handler(self, source, evt):
         if evt == lv.EVENT.PRESSING:
@@ -281,7 +306,7 @@ class ALTSlider(lv.slider):
     def _event_handler(self, source, evt):
         if evt == lv.EVENT.VALUE_CHANGED:
             self._slider_label.set_text(str(self.get_value()))
-    
+
     def __init__(self, parent=lv.scr_act(), x=0, y=0, width=150, min_value=0, max_value=100,
                  color=_DEFAULT_THEME_COLOR):
         super().__init__(parent)
@@ -304,12 +329,11 @@ class ALTSlider(lv.slider):
         darker_color = lv.color_t.color_darken(lv.color_hex(color), 30)
         style_knob.set_bg_color(lv.STATE.DEFAULT, darker_color)
         self.add_style(self.PART.KNOB, style_knob)
-        
-        self._slider_label=ALTLabel(parent = parent, text = '0')
-        self._slider_label.set_auto_realign(True)
-        self._slider_label.align(self, lv.ALIGN.OUT_BOTTOM_MID,0,10)
-        self.set_event_cb(self._event_handler)
 
+        self._slider_label = ALTLabel(parent=parent, text='0')
+        self._slider_label.set_auto_realign(True)
+        self._slider_label.align(self, lv.ALIGN.OUT_BOTTOM_MID, 0, 10)
+        self.set_event_cb(self._event_handler)
 
     # func() returns an integer between min_value and max_value (including) to be represented in the slider
     def d_refresh(self, func=None, *args):
@@ -354,57 +378,58 @@ class ALTButton(lv.btn):
 
 
 class ALTFadingBtn(ALTButton):
-  def _event_handler(self, source, evt):
-    if evt == lv.EVENT.PRESSING:
-        super().set_pos(10, 70)
-        super().set_size(300, 100)
-        c = self.get_child(None)
-        c.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_34)
+    def _event_handler(self, source, evt):
+        if evt == lv.EVENT.PRESSING:
+            super().set_pos(10, 70)
+            super().set_size(300, 100)
+            c = self.get_child(None)
+            c.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_34)
 
-    elif evt == lv.EVENT.RELEASED:
-        super().set_pos(self.primal_x, self.primal_y)
-        super().set_size(self.primal_w, self.primal_h)
-        c = self.get_child(None)
-        c.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, self.primal_font)
-    
-    
-  def __init__(self, parent=lv.scr_act(), x=0, y=0, text='', text_color=_DEFAULT_TEXT_COLOR,
+        elif evt == lv.EVENT.RELEASED:
+            super().set_pos(self.primal_x, self.primal_y)
+            super().set_size(self.primal_width, self.primal_height)
+            c = self.get_child(None)
+            c.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, self.primal_font)
+
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='', text_color=_DEFAULT_TEXT_COLOR,
                  color=_DEFAULT_THEME_COLOR, height=50, width=100, is_toggled=False, font=_DEFAULT_FONT,
                  radius=_DEFAULT_RADIUS):
-    super().__init__(x = x, y = y, text = text, text_color = text_color, color = color, height= height, width = width, is_toggled=is_toggled, font = font, radius = radius)
-    self.primal_x = x
-    self.primal_y = y
-    self.primal_height = height
-    self.primal_width = width
-    self.primal_font = font
-    
-    self.set_event_cb(self._event_handler)
-    
-  def set_pos(self, x,y):
-    super().set_pos(x,y)
-    self.primal_x = x
-    self.primal_y = y
-  
-  def set_x(self, x):
-    super().set_x(x)
-    self.primal_x = x
-    
-  def set_y(self, y):
-    super().set_y(y)
-    self.primal_y = y
-    
-  def set_size(self, height, width):
-    super().set_size(height, width)
-    self.primal_height = height
-    self.primal_width = width
-  
-  def set_width(self, width):
-    super().set_width(width)
-    self.primal_w = width
-    
-  def set_height(self, height):
-    super().set_height(height)
-    self.primal_h = height
+        super().__init__(parent=parent, x=x, y=y, text=text, text_color=text_color, color=color, height=height,
+                         width=width,
+                         is_toggled=is_toggled, font=font, radius=radius)
+        self.primal_x = x
+        self.primal_y = y
+        self.primal_height = height
+        self.primal_width = width
+        self.primal_font = font
+
+        self.set_event_cb(self._event_handler)
+
+    def set_pos(self, x, y):
+        super().set_pos(x, y)
+        self.primal_x = x
+        self.primal_y = y
+
+    def set_x(self, x):
+        super().set_x(x)
+        self.primal_x = x
+
+    def set_y(self, y):
+        super().set_y(y)
+        self.primal_y = y
+
+    def set_size(self, width, height):
+        super().set_size(width, height)
+        self.primal_height = height
+        self.primal_width = width
+
+    def set_width(self, width):
+        super().set_width(width)
+        self.primal_width = width
+
+    def set_height(self, height):
+        super().set_height(height)
+        self.primal_height = height
 
 
 class ALTChart(lv.chart):
@@ -499,7 +524,7 @@ class _Widget(ALTContainer):
         if event == lv.EVENT.LONG_PRESSED and not self.is_place_holder:
             # Delete widget from main board
             self._board.delete_widget(self)
-                
+
     def __init__(self, board, height, width, row, col, color, is_place_holder, parent=lv.scr_act()):
         super().__init__(parent)
         height_in_pixels = board.block_size * height + (height - 1) * board.split_size
@@ -531,8 +556,8 @@ class Board:
         for row in range(self.rows_num):
             for col in range(self.cols_num):
                 # Filling the board with place-holders
-                empty_block = _Widget(parent = self.parent, board=self, height=1, width=1, row=row, col=col, color=self._default_color,
-                                      is_place_holder=True)
+                empty_block = _Widget(parent=self.parent, board=self, height=1, width=1, row=row, col=col,
+                                      color=self._default_color, is_place_holder=True)
                 if not self._show_place_holders:
                     empty_block.set_hidden(True)
                 self._background_blocks.append(empty_block)
@@ -565,7 +590,8 @@ class Board:
             if any([row + i, col + j] in colored_block.reserved_blocks for colored_block in self._colored_blocks):
                 return None
 
-        widget = _Widget(self, parent = self.parent, height=height, width=width, row=row, col=col, color=color, is_place_holder=False)
+        widget = _Widget(self, parent=self.parent, height=height, width=width, row=row, col=col, color=color,
+                         is_place_holder=False)
         self._colored_blocks.append(widget)
         # Hide background blocks
         for i, j in widget.reserved_blocks:
@@ -599,9 +625,6 @@ class Board:
 # Running Examples:
 # vec = [(0xff0000, [10, 20, 30, 40, 10, 20, 30, 100, 10, 20])]
 # tmp = ALTChart(input_vector=vec, chart_type=lv.chart.TYPE.LINE)]]
-
+# 25x25 800 bytes
+# 50x50 1500 bytes
 tmp = ALTFadingBtn(x=100, y=100)
-
-
-
-
