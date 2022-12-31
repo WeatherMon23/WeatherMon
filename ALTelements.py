@@ -4,10 +4,6 @@ from m5stack_ui import *
 from uiflow import *
 from imagetools import get_png_info, open_png
 
-screen = M5Screen()
-screen.clean_screen()
-screen.set_screen_bg_color(0xFFFFFF)
-
 _DEFAULT_TEXT_COLOR = 0x000000
 _DEFAULT_THEME_COLOR = 0x228B22
 _DEFAULT_DISABLED_COLOR = 0xf2f2f2
@@ -27,13 +23,10 @@ Fonts:
 - lv.font_montserrat_48
 - lv.font_PHT_unicode_24
 '''
-
+_DEFAULT_IMG = '/flash/icons/default.png'
 
 class ALTImage(lv.img):
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, src='/flash/icons/wifi_green.png'):
-        super().__init__(parent)
-        self.set_pos(x, y)
-
+    def _set_src_aux(self, src):
         # Register PNG image decoder
         decoder = lv.img.decoder_create()
         decoder.info_cb = get_png_info
@@ -41,13 +34,38 @@ class ALTImage(lv.img):
 
         with open(src, 'rb') as f:
             png_data = f.read()
-
+            
         png_img_dsc = lv.img_dsc_t({
             'data_size': len(png_data),
             'data': png_data
         })
 
-        self.set_src(png_img_dsc)
+        super().set_src(png_img_dsc)
+        
+    def _set_img_default(self):
+        try:
+            self._set_src_aux(_DEFAULT_IMG)
+        except OSError as e:
+            raise OSError(__name__ + ': ' + str(e) + '\n default.png is missing from the icons folder!')
+            
+        
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, src=_DEFAULT_IMG):
+        super().__init__(parent)
+        self.set_pos(x, y)
+        if src == _DEFAULT_IMG:
+            self._set_img_default()
+        else:
+            self._set_src_aux(src)
+        
+    def set_src(self, src):
+        self._set_src_aux(src)
+        
+    # func() returns a string of a src image to be displayed
+    def d_refresh(self, func=None, *args):
+        if not func:
+            return
+        new_src = func(*args)
+        self.set_src(new_src) 
 
 
 class ALTLabel(lv.label):
@@ -624,4 +642,3 @@ class Board:
 # tmp = ALTChart(input_vector=vec, chart_type=lv.chart.TYPE.LINE)]]
 # 25x25 800 bytes
 # 50x50 1500 bytes
-tmp = ALTFadingButton(x=100, y=100)
