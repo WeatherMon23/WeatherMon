@@ -1,7 +1,13 @@
 from m5stack import *
 from m5stack_ui import *
 from uiflow import *
-from connection import *
+from ALTconnection import *
+
+################# UTILS ######################
+def _captilize_first_letter(s):
+    lst = [word[0].upper() + word[1:] for word in s.split()]
+    s = " ".join(lst)
+    return s
 
 ################# TIME #######################
 _NULL_TIME = '00:00'
@@ -100,10 +106,10 @@ def fetch_local_weather_from_api(apikey, units):
         return {'city' : 'N/A', 'date' : 'N/A', 'pressure' : 'N/A', 'temperature' : 'N/A',
             'humidity' : 'N/A', 'wind' : 'N/A', 'description' : 'N/A', 'icon-url' : 'res/error.png',
             'uv-index' : 'N/A', 'error-msg' : str(e)}
-    return {'city' : json_data["city"]["name"], 'date' : json_data["list"][0]["dt_txt"],
-            'pressure' : json_data["list"][0]["main"]["pressure"], 'temperature' : json_data["list"][0]["main"]["temp"],
-            'humidity' : json_data["list"][0]["main"]["humidity"], 'wind' : json_data["list"][0]["wind"]["speed"],
-            'description' : json_data["list"][0]["weather"][0]["description"], 'icon-url' : _fetch_icon_url_from_id(json_data["list"][0]["weather"][0]["icon"]),
+    return {'city' : json_data["city"]["name"], 'date' : str(json_data["list"][0]["dt_txt"]),
+            'pressure' : str(json_data["list"][0]["main"]["pressure"]), 'temperature' : str(round(json_data["list"][0]["main"]["temp"])),
+            'humidity' : str(json_data["list"][0]["main"]["humidity"]), 'wind' : str(json_data["list"][0]["wind"]["speed"]),
+            'description' : _captilize_first_letter(json_data["list"][0]["weather"][0]["description"]), 'icon-url' : _fetch_icon_url_from_id(json_data["list"][0]["weather"][0]["icon"]),
             'uv-index' : 'N/A', 'error-msg' : ''}
 
 
@@ -113,9 +119,7 @@ def fetch_local_weather_from_api(apikey, units):
 
 # If the city contains spaces e.g. Ramat Gan, then the parameter should contain + instead of space,
 # e.g. Ramat+Gan
-def _get_weather_json_from_web():
-    check_connection()
-    city = _get_city_from_curr_ip()
+def _get_weather_json_from_web(city):
     city_m = city.replace(' ', '+')
     req_text = urequests.get("https://wttr.in/{}?format=j2".format(city_m)).text
     try:
@@ -140,7 +144,9 @@ def fetch_local_weather_from_web(units):
     if temp_id is None:
         raise Exception(__name__ + ': Units must either be : F, C')
     try:
-        json_data = _get_weather_json_from_web()
+        check_connection()
+        city = _get_city_from_curr_ip()
+        json_data = _get_weather_json_from_web(city)
     except Exception as e:
         return {'city' : 'N/A', 'date' : 'N/A', 'pressure' : 'N/A', 'temperature' : 'N/A',
             'humidity' : 'N/A', 'wind' : 'N/A', 'description' : 'N/A', 'icon-url' : 'res/error.png',
@@ -148,8 +154,8 @@ def fetch_local_weather_from_web(units):
     weather = json_data['weather'][0]
     json_data = json_data['current_condition'][0]
     return {'city' : city, 'date' : json_data["localObsDateTime"],
-            'pressure' : json_data["pressure"], 'temperature' : str(json_data[temp_id]),
+            'pressure' : str(json_data["pressure"]), 'temperature' : str(json_data[temp_id]),
             'humidity' : str(json_data["humidity"]), 'wind' : str(round(float(json_data["windspeedKmph"])*0.277778, 2)),
-            'description' : json_data["weatherDesc"][0]["value"], 'icon-url' : _fetch_icon_url_from_desc(json_data["weatherIconUrl"][0]["value"]),
-            'uv-index' : weather["uvIndex"], 'error-msg' : ''}
+            'description' : _captilize_first_letter(json_data["weatherDesc"][0]["value"]), 'icon-url' : _fetch_icon_url_from_desc(json_data["weatherIconUrl"][0]["value"]),
+            'uv-index' : str(weather["uvIndex"]), 'error-msg' : ''}
     

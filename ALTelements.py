@@ -3,6 +3,7 @@ from m5stack import *
 from m5stack_ui import *
 from uiflow import *
 from imagetools import get_png_info, open_png
+from urequests import *
 
 _DEFAULT_TEXT_COLOR = 0x000000
 _DEFAULT_THEME_COLOR = 0x228B22
@@ -42,6 +43,15 @@ class ALTImage(lv.img):
 
         super().set_src(png_img_dsc)
         
+    def _set_src_url(self, src):
+        response = urequests.get(src)
+        image_bytes = response.content
+        png_img_dsc = lv.img_dsc_t({
+            'data_size': len(image_bytes),
+            'data': image_bytes
+        })
+        super().set_src(png_img_dsc)
+        
     def _set_img_default(self):
         try:
             self._set_src_aux(_DEFAULT_IMG)
@@ -52,20 +62,25 @@ class ALTImage(lv.img):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, src=_DEFAULT_IMG):
         super().__init__(parent)
         self.set_pos(x, y)
-        if src == _DEFAULT_IMG:
+        if 'http://' in src or 'https://' in src:
+            self._set_src_url(src)
+        elif src == _DEFAULT_IMG:
             self._set_img_default()
         else:
             self._set_src_aux(src)
         
     def set_src(self, src):
-        self._set_src_aux(src)
+        if 'http://' in src or 'https://' in src:
+            self._set_src_url(src)
+        else:
+            self._set_src_aux(src)
         
     # func() returns a string of a src image to be displayed
     def d_refresh(self, func=None, *args):
         if not func:
             return
         new_src = func(*args)
-        self.set_src(new_src) 
+        self.set_src(new_src)
 
 
 class ALTLabel(lv.label):
@@ -81,7 +96,7 @@ class ALTLabel(lv.label):
                              self._o_height)  # self.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, self._o_font)
 
     def __init__(self, parent=lv.scr_act(), x=0, y=0, text='', text_color=_DEFAULT_TEXT_COLOR, font=_DEFAULT_FONT,
-                 width=100, long_mode=lv.label.LONG.DOT, alignment=lv.label.ALIGN.CENTER):
+                 width=0, long_mode=lv.label.LONG.EXPAND, alignment=lv.label.ALIGN.CENTER):
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_text(text)
@@ -541,9 +556,9 @@ class _Widget(ALTContainer):
             self._board.delete_widget(self)
 
     def __init__(self, board, height, width, row, col, color, is_place_holder, parent=lv.scr_act()):
-        super().__init__(parent)
         height_in_pixels = board.block_size * height + (height - 1) * board.split_size
-        super().__init__(height=board.block_size * width + (width - 1) * board.split_size, width=height_in_pixels,
+        width_in_pixels = board.block_size * width + (width - 1) * board.split_size
+        super().__init__(parent=parent, height=height_in_pixels, width=width_in_pixels,
                          color=color)
         if not (0 <= row < board.rows_num) or (not 0 <= col < board.cols_num) or not (
                 row + height <= board.rows_num) or (not col + width <= board.cols_num) or height <= 0 or width <= 0:

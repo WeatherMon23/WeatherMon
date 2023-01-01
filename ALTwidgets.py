@@ -27,8 +27,8 @@ class ALTTitle():
 
     def __init__(self, text = '', text_color = 0xFFFFFF, color=0x000000):
         self.line = ALTContainer(x=0, y=0, height=26, width=LV_HOR_RES, color=color, radius=0)
-        self.left_label = ALTLabel(self.line, x=6, y=5, text=text, width=120, text_color=text_color, alignment=lv.label.ALIGN.LEFT)
-        self.battery_label = ALTLabel(self.line, x=243, y=5, text=self._calc_battery_per(), text_color=text_color)
+        self.left_label = ALTLabel(self.line, x=6, y=5, text=text, text_color=text_color)
+        self.battery_label = ALTLabel(self.line, x=265, y=5, text=self._calc_battery_per(), text_color=text_color)
         self.battery_label.set_hidden(True)
 
         self.icon1 = None
@@ -51,6 +51,7 @@ class ALTTitle():
         self.left_label.set_text(text)
         
     def show_battery(self):
+        self.battery_label.set_text(self._calc_battery_per())
         self.battery_label.set_hidden(False)
                 
     def remove_battery(self):
