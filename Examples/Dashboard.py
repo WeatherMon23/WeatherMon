@@ -4,6 +4,7 @@ from ALTconnection import *
 from ALTelements import *
 from ALTwidgets import *
 from ALTweather import *
+from m5mqtt import M5mqtt
 import wifiCfg
        
 screen = M5Screen()
@@ -14,7 +15,6 @@ time_date = '01 Jan 00:00'
 weather_dict = None
 isconn = wifiCfg.is_connected()
 
-connect_wifi("srtcm1", "0505793273")
 t = ALTTitle(color=0x00093D)
 t.show_battery()
 if isconn:
@@ -50,6 +50,19 @@ remote_disc = ALTLabel(parent=w_remote, x=6, y=72, text='Temp: 21C', font=lv.fon
 remote_pres = ALTLabel(parent=w_remote, x=7, y=95, text='1007.3 hPa', font=lv.font_montserrat_18, text_color=0xFFFFFF)
 
 wind_val = ALTLabel(parent=w_wind, x=5, y=13, text='00 m/s', font=lv.font_montserrat_26, text_color=0xFFFFFF)
+
+def fetch_data(topic_data):
+    data_list = topic_data.split(',')
+    temp = str(round(float(data_list[0])))
+    pressure = str(round(float(data_list[1]),1))
+    remote_disc.set_text('Temp: ' + temp + 'C')
+    remote_pres.set_text(pressure + ' hPa')
+    pass
+
+connect_wifi("ICST", "arduino123")
+m5mqtt = M5mqtt('subscriber', 'io.adafruit.com', 1883, 'WeatherMon', 'aio_dpeD84qP5LNgUJh1ihzHwEE70UsG', 300)
+m5mqtt.subscribe(str('WeatherMon/feeds/weathermonfeed'), fetch_data)
+m5mqtt.start()
 
 def refresh_minor():
     global time_date
