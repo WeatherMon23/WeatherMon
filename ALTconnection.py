@@ -1,10 +1,23 @@
-from m5stack import *
-from m5stack_ui import *
-from uiflow import *
-
 import wifiCfg
 
 def connect_wifi(ssid, password):
+    """
+    A wrapper function for wifiCfg.doConnect(ssid, password).
+    In this function we print an informative message in the terminal in the cases of success
+    and failure. We override the error raise in the original function.
+
+    Parameters
+    ----------
+    ssid : str
+        The WiFi's name.
+    password : str
+        The WiFi's password.
+
+    Returns
+    -------
+    True/False
+        True in case of connection success and False otherwise.
+    """
     try:
         wifiCfg.doConnect(ssid, password)
         print('Connection Established')
@@ -13,8 +26,16 @@ def connect_wifi(ssid, password):
         print("Can't Connect to WIFI : " + str(e), 0, 0, 0x000)
         return False
 
-# If wifi isn't connected raises an error
+
 def check_connection():
+    """
+    A wrapper function for wifiCfg.isConnected().
+    Raises an exception if Wifi isn't connected instead of returning False.
+
+    Raises
+    -------
+    In case of no internet connection.
+    """
     if not wifiCfg.is_connected():
         raise Exception(__name__ + ": No internet connection.")
     
