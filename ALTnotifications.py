@@ -15,7 +15,7 @@ class GridEmail:
     sender_address : str
         The Email address of the sender
     sendgrid_auth_token : str
-        The account authentication token from SendGrid
+        The account's authentication token from SendGrid
     
     Methods
     -------
@@ -33,7 +33,7 @@ class GridEmail:
         sender_address : str
             The Email address of the sender
         auth_token : str
-            The account authentication token from SendGrid
+            The account's authentication token from SendGrid
         """
 
         self.sender_address = sender_address
