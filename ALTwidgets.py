@@ -1,5 +1,6 @@
 import lvgl as lv
-from ALTelements import *
+import ALTelements as alte
+from m5stack import power
 
 LV_HOR_RES = 320
 LV_VER_RES = 240
@@ -7,7 +8,7 @@ LV_VER_RES = 240
 _DEFAULT_TEXT_COLOR = 0x000000
 _DEFAULT_THEME_COLOR = 0x228B22
 _DEFAULT_DISABLED_COLOR = 0xf2f2f2
-
+_DEFAULT_RADIUS = 8
 
 class Title():
     """
@@ -105,9 +106,9 @@ class Title():
         color : hex int
             The color of the status bar. (default is 0x000000 (black))
         """
-        self.line = Container(x=0, y=0, height=26, width=LV_HOR_RES, color=color, radius=0)
-        self.left_label = Label(self.line, x=6, y=5, text=text, text_color=text_color)
-        self.battery_label = Label(self.line, x=265, y=5, text=self._calc_battery_per(), text_color=text_color)
+        self.line = alte.Container(x=0, y=0, height=26, width=LV_HOR_RES, color=color, radius=0)
+        self.left_label = alte.Label(self.line, x=6, y=5, text=text, text_color=text_color)
+        self.battery_label = alte.Label(self.line, x=265, y=5, text=self._calc_battery_per(), text_color=text_color)
         self.battery_label.set_hidden(True)
 
         self.wifi_icon = None
@@ -174,7 +175,7 @@ class Title():
 
         """
         if self.wifi_icon is None:
-            self.wifi_icon = Image(self.line, x=241, y=5, src='/flash/icons/wifi_green.png')
+            self.wifi_icon = alte.Image(self.line, x=241, y=5, src='/flash/icons/wifi_green.png')
         else:
             self.wifi_icon.set_src("/flash/icons/wifi_green.png")
         self._update_positions()
@@ -189,7 +190,7 @@ class Title():
 
         """
         if self.wifi_icon is None:
-            self.wifi_icon = Image(self.line, x=241, y=5, src='/flash/icons/wifi_red.png')
+            self.wifi_icon = alte.Image(self.line, x=241, y=5, src='/flash/icons/wifi_red.png')
         else:
             self.wifi_icon.set_src("/flash/icons/wifi_red.png")
         self._update_positions()
@@ -213,7 +214,7 @@ class Title():
 
         """
         if self.cloud_icon is None:
-            self.cloud_icon = Image(self.line, x=215, y=7, src='/flash/icons/cloud_green.png')
+            self.cloud_icon = alte.Image(self.line, x=215, y=7, src='/flash/icons/cloud_green.png')
         else:
             self.cloud_icon.set_src("/flash/icons/cloud_green.png")
         self._update_positions()
@@ -228,7 +229,7 @@ class Title():
 
         """
         if self.cloud_icon is None:
-            self.cloud_icon = Image(self.line, x=215, y=7, src='/flash/icons/cloud_red.png')
+            self.cloud_icon = alte.Image(self.line, x=215, y=7, src='/flash/icons/cloud_red.png')
         else:
             self.cloud_icon.set_src("/flash/icons/cloud_red.png")
         self._update_positions()
@@ -242,11 +243,6 @@ class Title():
         self.cloud_icon = None
         self._update_positions()
 
-
-# Every class that inherits and wants to customize _mbox_even_cb
-# should make sure to implement the most basic functionality and then
-# customize the buttons.
-# Check Confirmation for an example
 class _DialogBase():
     """
     A base class for all possible pop up dialogues.
@@ -321,17 +317,12 @@ class _DialogBase():
         btn_style = lv.style_t()
         btn_style.init()
         btn_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_18)
+        btn_style.set_radius(lv.STATE.DEFAULT, _DEFAULT_RADIUS)
         mbox_style.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(color))
 
         if title:
-            mlabel = lv.label(self.mbox, None)
-            mlabel.set_text(text)
-            mlabel.set_long_mode(mlabel.LONG.BREAK)
-            label_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_18)
-            label_style.set_text_color(lv.STATE.DEFAULT, lv.color_hex(text_color))
-            label_style.set_pad_hor(lv.STATE.DEFAULT, 50)
-            mlabel.add_style(mlabel.PART.MAIN, label_style)
-            mlabel.set_align(mlabel.ALIGN.CENTER)
+            mlabel = alte.Label(parent=self.mbox, text=text, text_color=text_color, font=lv.font_montserrat_18,
+                     width=200, long_mode=lv.label.LONG.BREAK, alignment=lv.label.ALIGN.CENTER)
             mbox_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_26)
             mbox_style.set_text_color(lv.STATE.DEFAULT, lv.color_hex(title_color))
             self.mbox.set_text(title)
@@ -412,7 +403,8 @@ class Confirmation(_DialogBase):
                 self.confirm_func(*self.args)
             obj.start_auto_close(0)
 
-    def __init__(self, text, text_color, title, title_color, color, confirm_func, *args):
+    def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title = '',
+                 title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF, confirm_func = None, *args):
         """
         Parameters
         ----------
@@ -435,4 +427,3 @@ class Confirmation(_DialogBase):
         self.confirm_func = confirm_func
         self.args = args
         super().set_evt_cb_aux(self._mbox_event_cb)
-
