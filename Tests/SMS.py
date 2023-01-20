@@ -1,8 +1,8 @@
+import ubinascii
+import urequests
 from m5stack import *
 from m5stack_ui import *
 from uiflow import *
-import ubinascii
-import urequests
 
 screen = M5Screen()
 screen.clean_screen()
@@ -14,19 +14,15 @@ class TwilioSMS:
 
     def __init__(self, account_sid, auth_token):
         self.twilio_account_sid = account_sid
-        self.twilio_auth = ubinascii.b2a_base64('{sid}:{token}'.format(
-            sid=account_sid, token=auth_token)).strip()
+        self.twilio_auth = ubinascii.b2a_base64('{sid}:{token}'.format(sid=account_sid, token=auth_token)).strip()
 
     def create(self, body, from_number, to_number):
-        data = 'Body={body}&From={from_number}&To={to_number}'.format(
-            body=body, from_number=from_number.replace('+', '%2B'),
-            to_number=to_number.replace('+', '%2B'))
+        data = 'Body={body}&From={from_number}&To={to_number}'.format(body=body,
+            from_number=from_number.replace('+', '%2B'), to_number=to_number.replace('+', '%2B'))
         r = urequests.post(
-            '{base_url}/Accounts/{sid}/Messages.json'.format(
-                base_url=self.base_url, sid=self.twilio_account_sid),
-            data=data,
-            headers={'Authorization': b'Basic ' + self.twilio_auth,
-                     'Content-Type': 'application/x-www-form-urlencoded'})
+            '{base_url}/Accounts/{sid}/Messages.json'.format(base_url=self.base_url, sid=self.twilio_account_sid),
+            data=data, headers={'Authorization': b'Basic ' + self.twilio_auth,
+                                'Content-Type': 'application/x-www-form-urlencoded'})
         print('SMS sent with status code', r.status_code)
         print('Response: ', r.text)
 

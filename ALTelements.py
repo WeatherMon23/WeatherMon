@@ -1,11 +1,6 @@
 import lvgl as lv
 from imagetools import get_png_info, open_png
-from m5stack_ui import M5Screen
 from urequests import *
-
-screen = M5Screen()
-screen.clean_screen()
-screen.set_screen_bg_color(0xFFFFFF)
 
 _DEFAULT_TEXT_COLOR = 0x000000
 _DEFAULT_THEME_COLOR = 0x228B22
@@ -402,6 +397,7 @@ class Button(lv.btn):
         new_data = func(*args)
         self._label_button.set_text(new_data)
 
+
 class Chart(lv.chart):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, height=150, width=200, min_val=0, max_val=100, input_vector=[],
                  chart_type=lv.chart.TYPE.COLUMN, is_faded=True):
@@ -444,6 +440,29 @@ class Chart(lv.chart):
             tmp_ser = self.add_series(lv.color_hex(color))
             self.set_points(tmp_ser, points)
         self.refresh()
+
+
+class Gauge(lv.gauge):
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, gauge_color=_DEFAULT_THEME_COLOR, length=150, initial_value=0,
+                 min_value=0, max_value=100):
+        super().__init__(parent)
+        self.set_pos(x, y)
+        self.set_size(length, length)
+        self.set_needle_count(1, [lv.color_hex(gauge_color)])
+        self.set_value(0, initial_value)
+        self.set_range(min_value, max_value)
+
+        style_bg = lv.style_t()
+        style_bg.init()
+        style_bg.set_border_width(lv.STATE.DEFAULT, 0)
+        self.add_style(self.PART.MAIN, style_bg)
+
+    # func() returns an integer within the gauge's range of value and changes needle's direction accordingly
+    def d_refresh(self, func=None, *args):
+        if not func:
+            return
+        new_data = func(*args)
+        self.set_value(0, new_data)
 
 
 class Container(lv.cont):

@@ -1,5 +1,6 @@
 import wifiCfg
 
+
 def connect_wifi(ssid, password):
     """
     A wrapper function for wifiCfg.doConnect(ssid, password).
@@ -9,9 +10,9 @@ def connect_wifi(ssid, password):
     Parameters
     ----------
     ssid : str
-        The WiFi's name.
+        The Wi-Fi network name.
     password : str
-        The WiFi's password.
+        The Wi-Fi network password.
 
     Returns
     -------
@@ -30,7 +31,7 @@ def connect_wifi(ssid, password):
 def check_connection():
     """
     A wrapper function for wifiCfg.isConnected().
-    Raises an exception if Wifi isn't connected instead of returning False.
+    Raises an exception if Wi-Fi isn't connected instead of returning False.
 
     Raises
     -------
@@ -38,6 +39,4 @@ def check_connection():
     """
     if not wifiCfg.is_connected():
         raise Exception(__name__ + ": No internet connection.")
-    
-
-
+  

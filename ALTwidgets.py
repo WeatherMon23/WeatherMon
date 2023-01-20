@@ -1,11 +1,7 @@
 import lvgl as lv
-import ALTelements as alte
 from m5stack import power
-from m5stack_ui import M5Screen
 
-screen = M5Screen()
-screen.clean_screen()
-screen.set_screen_bg_color(0xFFFFFF)
+import ALTelements as alte
 
 LV_HOR_RES = 320
 LV_VER_RES = 240
@@ -16,6 +12,7 @@ _DEFAULT_DISABLED_COLOR = 0xf2f2f2
 _DEFAULT_RADIUS = 8
 _DEFAULT_ANIME_TIME = 100
 _DEFAULT_FONT = lv.font_montserrat_14
+
 
 class Title():
     """
@@ -249,7 +246,8 @@ class Title():
         self.cloud_icon.delete()
         self.cloud_icon = None
         self._update_positions()
-        
+
+
 class FadingButton(alte.Button):
     def _event_handler(self, source, evt):
         if evt == lv.EVENT.PRESSING:
@@ -302,6 +300,7 @@ class FadingButton(alte.Button):
     def set_height(self, height):
         super().set_height(height)
         self.primal_height = height
+
 
 class _DialogBase():
     """
@@ -382,7 +381,7 @@ class _DialogBase():
 
         if title:
             mlabel = alte.Label(parent=self.mbox, text=text, text_color=text_color, font=lv.font_montserrat_18,
-                     width=200, long_mode=lv.label.LONG.BREAK, alignment=lv.label.ALIGN.CENTER)
+                                width=200, long_mode=lv.label.LONG.BREAK, alignment=lv.label.ALIGN.CENTER)
             mbox_style.set_text_font(lv.STATE.DEFAULT, lv.font_montserrat_26)
             mbox_style.set_text_color(lv.STATE.DEFAULT, lv.color_hex(title_color))
             self.mbox.set_text(title)
@@ -463,8 +462,8 @@ class Confirmation(_DialogBase):
                 self.confirm_func(*self.args)
             obj.start_auto_close(0)
 
-    def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title = '',
-                 title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF, confirm_func = None, *args):
+    def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title='',
+                 title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF, confirm_func=None, *args):
         """
         Parameters
         ----------
@@ -487,7 +486,8 @@ class Confirmation(_DialogBase):
         self.confirm_func = confirm_func
         self.args = args
         super().set_evt_cb_aux(self._mbox_event_cb)
-        
+
+
 class _Widget(alte.Container):
     def _gl_delete_widget(self, board, widget):
         board.delete_widget(widget)
@@ -495,8 +495,9 @@ class _Widget(alte.Container):
     def _event_handler(self, source, event):
         if event == lv.EVENT.LONG_PRESSED and not self.is_place_holder:
             # Delete widget from main board
-            conf = Confirmation('Remove Widget?', _DEFAULT_TEXT_COLOR, '', _DEFAULT_TEXT_COLOR, 0xFFFFFF, self._gl_delete_widget,
-                                   self._board, self)
+            conf = Confirmation('Remove Widget?', _DEFAULT_TEXT_COLOR, '', _DEFAULT_TEXT_COLOR, 0xFFFFFF,
+                                self._gl_delete_widget,
+                                self._board, self)
 
     def __init__(self, board, height, width, row, col, color, is_place_holder, parent=lv.scr_act()):
         height_in_pixels = board.block_size * height + (height - 1) * board.split_size

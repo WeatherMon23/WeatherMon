@@ -1,24 +1,4 @@
-
-
-################# UTILS ######################
-
-def capitalize_first_letter(s):
-    """
-    Capitilizes the first letter of each word in a given sentence.
-
-    Parameters
-    ----------
-    s : str
-        The sentence we want to capitalize.
-
-    Returns
-    -------
-    s : str
-        The modified sentence.
-    """
-    lst = [word[0].upper() + word[1:] for word in s.split()]
-    s = " ".join(lst)
-    return s
+""" UTILS """
 
 def add_left_zero(s):
     """

@@ -1,7 +1,7 @@
 import random
 
 import ubinascii
-import urequests as requests
+import urequests
 
 
 class GridEmail:
@@ -58,7 +58,7 @@ class GridEmail:
                      'from': {'email': self.sender_address, }, 'subject': subject,
                      'content': [{'type': 'text/plain', 'value': body, }, ], }
         try:
-            response = requests.post('https://api.sendgrid.com/v3/mail/send', headers=headers, json=json_data)
+            response = urequests.post('https://api.sendgrid.com/v3/mail/send', headers=headers, json=json_data)
         except Exception as e:
             print('Failed Sending Email: ' + str(e))
             return
@@ -145,7 +145,7 @@ class TwilioSMS:
                                                                                to_number=to_number.replace('+', '%2B'),
                                                                                mssid=self.twilio_service_sid)
         try:
-            response = requests.post(
+            response = urequests.post(
                 'https://api.twilio.com/2010-04-01/Accounts/' + self.twilio_account_sid + '/Messages.json', data=data,
                 headers={'Authorization': b'Basic ' + self.twilio_auth_token,
                          'Content-Type': 'application/x-www-form-urlencoded'})
@@ -238,7 +238,7 @@ class TwilioWhatsApp:
                                                                                             '+',
                                                                                             '%2B'))
         try:
-            response = requests.post(
+            response = urequests.post(
                 'https://api.twilio.com/2010-04-01/Accounts/' + self.twilio_account_sid + '/Messages.json', data=data,
                 headers={'Authorization': b'Basic ' + self.twilio_auth_token,
                          'Content-Type': 'application/x-www-form-urlencoded'})
