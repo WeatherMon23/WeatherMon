@@ -1,9 +1,14 @@
 import lvgl as lv
+from ALTwidgets import *
+from imagetools import get_png_info, open_png
 from m5stack import *
 from m5stack_ui import *
 from uiflow import *
-from imagetools import get_png_info, open_png
 from urequests import *
+
+screen = M5Screen()
+screen.clean_screen()
+screen.set_screen_bg_color(0xFFFFFF)
 
 _DEFAULT_TEXT_COLOR = 0x000000
 _DEFAULT_THEME_COLOR = 0x228B22
@@ -26,7 +31,8 @@ Fonts:
 '''
 _DEFAULT_IMG = '/flash/icons/default.png'
 
-class ALTImage(lv.img):
+
+class Image(lv.img):
     def _set_src_aux(self, src):
         # Register PNG image decoder
         decoder = lv.img.decoder_create()
@@ -35,30 +41,23 @@ class ALTImage(lv.img):
 
         with open(src, 'rb') as f:
             png_data = f.read()
-            
-        png_img_dsc = lv.img_dsc_t({
-            'data_size': len(png_data),
-            'data': png_data
-        })
+
+        png_img_dsc = lv.img_dsc_t({'data_size': len(png_data), 'data': png_data})
 
         super().set_src(png_img_dsc)
-        
+
     def _set_src_url(self, src):
         response = urequests.get(src)
         image_bytes = response.content
-        png_img_dsc = lv.img_dsc_t({
-            'data_size': len(image_bytes),
-            'data': image_bytes
-        })
+        png_img_dsc = lv.img_dsc_t({'data_size': len(image_bytes), 'data': image_bytes})
         super().set_src(png_img_dsc)
-        
+
     def _set_img_default(self):
         try:
             self._set_src_aux(_DEFAULT_IMG)
         except OSError as e:
             raise OSError(__name__ + ': ' + str(e) + '\n default.png is missing from the icons folder!')
-            
-        
+
     def __init__(self, parent=lv.scr_act(), x=0, y=0, src=_DEFAULT_IMG):
         super().__init__(parent)
         self.set_pos(x, y)
@@ -68,13 +67,13 @@ class ALTImage(lv.img):
             self._set_img_default()
         else:
             self._set_src_aux(src)
-        
+
     def set_src(self, src):
         if 'http://' in src or 'https://' in src:
             self._set_src_url(src)
         else:
             self._set_src_aux(src)
-        
+
     # func() returns a string of a src image to be displayed
     def d_refresh(self, func=None, *args):
         if not func:
@@ -83,7 +82,7 @@ class ALTImage(lv.img):
         self.set_src(new_src)
 
 
-class ALTLabel(lv.label):
+class Label(lv.label):
     def _event_handler(self, source, evt):
         if evt == lv.EVENT.PRESSING:
             super().set_pos(10, 70)
@@ -95,7 +94,7 @@ class ALTLabel(lv.label):
             super().set_size(self._o_width,
                              self._o_height)  # self.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, self._o_font)
 
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='', text_color=_DEFAULT_TEXT_COLOR, font=_DEFAULT_FONT,
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Label', text_color=_DEFAULT_TEXT_COLOR, font=_DEFAULT_FONT,
                  width=0, long_mode=lv.label.LONG.EXPAND, alignment=lv.label.ALIGN.CENTER):
         super().__init__(parent)
         self.set_pos(x, y)
@@ -132,8 +131,8 @@ class ALTLabel(lv.label):
         self.set_text(new_data)
 
 
-class ALTCheckbox(lv.checkbox):
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='', text_color=_DEFAULT_TEXT_COLOR,
+class Checkbox(lv.checkbox):
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Checkbox', text_color=_DEFAULT_TEXT_COLOR,
                  color=_DEFAULT_THEME_COLOR, state=lv.btn.STATE.RELEASED):
         super().__init__(parent)
         self.set_pos(x, y)
@@ -170,7 +169,7 @@ class ALTCheckbox(lv.checkbox):
         self.set_checked(new_data)
 
 
-class ALTLine(lv.line):
+class Line(lv.line):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, length=50, is_vertical=False, width=1,
                  color=_DEFAULT_THEME_COLOR):
         super().__init__(parent)
@@ -191,14 +190,14 @@ class ALTLine(lv.line):
         return
 
 
-class ALTTable(lv.table):
+class Table(lv.table):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, data=[], text_color=_DEFAULT_TEXT_COLOR, font=_DEFAULT_FONT,
                  alignment=lv.label.ALIGN.CENTER, num_of_cols=0, width=150):
         super().__init__(parent)
         self.set_pos(x, y)
         self._num_of_cols = num_of_cols
         self.set_col_cnt(num_of_cols)
-        for i in range(len(data) / num_of_cols):
+        for i in range(int(len(data) / num_of_cols)):
             for j in range(num_of_cols):
                 if i == 0:
                     self.set_col_width(j, int(width / num_of_cols))
@@ -225,12 +224,12 @@ class ALTTable(lv.table):
         if not func:
             return
         new_data = func(*args)
-        for i in range(len(new_data) / self._num_of_cols):
+        for i in range(int(len(new_data) / self._num_of_cols)):
             for j in range(self._num_of_cols):
                 self.set_cell_value(i, j, new_data[i * self._num_of_cols + j])
 
 
-class ALTSwitch(lv.switch):
+class Switch(lv.switch):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, color=_DEFAULT_THEME_COLOR):
         super().__init__(parent)
         self.set_pos(x, y)
@@ -258,7 +257,7 @@ class ALTSwitch(lv.switch):
             self.toggle(lv.ANIM.ON)
 
 
-class ALTCpicker(lv.cpicker):
+class Cpicker(lv.cpicker):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, length=150):
         super().__init__(parent)
         self.set_pos(x, y)
@@ -272,7 +271,7 @@ class ALTCpicker(lv.cpicker):
         self.set_color(new_data)
 
 
-class ALTDropdown(lv.dropdown):
+class Dropdown(lv.dropdown):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, options=[], color=_DEFAULT_THEME_COLOR):
         super().__init__(parent)
         self.set_pos(x, y)
@@ -300,7 +299,7 @@ class ALTDropdown(lv.dropdown):
         self.set_options("\n".join(new_data))
 
 
-class ALTRoller(lv.roller):
+class Roller(lv.roller):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, options=[], mode=lv.roller.MODE.INFINITE,
                  color=_DEFAULT_THEME_COLOR):
         super().__init__(parent)
@@ -332,7 +331,7 @@ class ALTRoller(lv.roller):
         self.set_options("\n".join(new_data), self._mode)
 
 
-class ALTSlider(lv.slider):
+class Slider(lv.slider):
     def _event_handler(self, source, evt):
         if evt == lv.EVENT.VALUE_CHANGED:
             self._slider_label.set_text(str(self.get_value()))
@@ -360,7 +359,7 @@ class ALTSlider(lv.slider):
         style_knob.set_bg_color(lv.STATE.DEFAULT, darker_color)
         self.add_style(self.PART.KNOB, style_knob)
 
-        self._slider_label = ALTLabel(parent=parent, text='0')
+        self._slider_label = Label(parent=parent, text='0')
         self._slider_label.set_auto_realign(True)
         self._slider_label.align(self, lv.ALIGN.OUT_BOTTOM_MID, 0, 10)
         self.set_event_cb(self._event_handler)
@@ -373,8 +372,8 @@ class ALTSlider(lv.slider):
         self.set_value(new_data, lv.ANIM.ON)
 
 
-class ALTButton(lv.btn):
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='', text_color=_DEFAULT_TEXT_COLOR,
+class Button(lv.btn):
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Button', text_color=_DEFAULT_TEXT_COLOR,
                  color=_DEFAULT_THEME_COLOR, height=50, width=100, is_toggled=False, font=_DEFAULT_FONT,
                  radius=_DEFAULT_RADIUS):
         super().__init__(parent)
@@ -385,7 +384,7 @@ class ALTButton(lv.btn):
         self._o_font = font
         self.set_pos(x, y)
         self.set_size(width, height)
-        self._label_button = ALTLabel(parent=self, text=text, font=font, text_color=text_color)
+        self._label_button = Label(parent=self, text=text, font=font, text_color=text_color)
         self.set_checkable(is_toggled)
 
         style_main = lv.style_t()
@@ -407,7 +406,7 @@ class ALTButton(lv.btn):
         self._label_button.set_text(new_data)
 
 
-class ALTFadingButton(ALTButton):
+class FadingButton(Button):
     def _event_handler(self, source, evt):
         if evt == lv.EVENT.PRESSING:
             super().set_pos(10, 70)
@@ -421,12 +420,11 @@ class ALTFadingButton(ALTButton):
             c = self.get_child(None)
             c.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, self.primal_font)
 
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='', text_color=_DEFAULT_TEXT_COLOR,
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Button', text_color=_DEFAULT_TEXT_COLOR,
                  color=_DEFAULT_THEME_COLOR, height=50, width=100, is_toggled=False, font=_DEFAULT_FONT,
                  radius=_DEFAULT_RADIUS):
         super().__init__(parent=parent, x=x, y=y, text=text, text_color=text_color, color=color, height=height,
-                         width=width,
-                         is_toggled=is_toggled, font=font, radius=radius)
+                         width=width, is_toggled=is_toggled, font=font, radius=radius)
         self.primal_x = x
         self.primal_y = y
         self.primal_height = height
@@ -462,7 +460,7 @@ class ALTFadingButton(ALTButton):
         self.primal_height = height
 
 
-class ALTChart(lv.chart):
+class Chart(lv.chart):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, height=150, width=200, min_val=0, max_val=100, input_vector=[],
                  chart_type=lv.chart.TYPE.COLUMN, is_faded=True):
         super().__init__(parent)
@@ -506,7 +504,7 @@ class ALTChart(lv.chart):
         self.refresh()
 
 
-class ALTContainer(lv.cont):
+class Container(lv.cont):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, height=150, width=100, color=_DEFAULT_THEME_COLOR,
                  layout=lv.LAYOUT.OFF, fit=lv.FIT.NONE, radius=_DEFAULT_RADIUS):
         super().__init__(parent)
@@ -549,17 +547,21 @@ class ALTContainer(lv.cont):
         return
 
 
-class _Widget(ALTContainer):
+def gl_delete_widget(board, widget):
+    board.delete_widget(widget)
+
+
+class _Widget(Container):
     def _event_handler(self, source, event):
         if event == lv.EVENT.LONG_PRESSED and not self.is_place_holder:
             # Delete widget from main board
-            self._board.delete_widget(self)
+            conf = Confirmation('Remove Widget?', _DEFAULT_TEXT_COLOR, '', _DEFAULT_TEXT_COLOR, 0xFFFFFF, gl_delete_widget,
+                                   self._board, self)
 
     def __init__(self, board, height, width, row, col, color, is_place_holder, parent=lv.scr_act()):
         height_in_pixels = board.block_size * height + (height - 1) * board.split_size
         width_in_pixels = board.block_size * width + (width - 1) * board.split_size
-        super().__init__(parent=parent, height=height_in_pixels, width=width_in_pixels,
-                         color=color)
+        super().__init__(parent=parent, height=height_in_pixels, width=width_in_pixels, color=color)
         if not (0 <= row < board.rows_num) or (not 0 <= col < board.cols_num) or not (
                 row + height <= board.rows_num) or (not col + width <= board.cols_num) or height <= 0 or width <= 0:
             raise Exception('Invalid Parameters')
@@ -600,7 +602,7 @@ class Board:
             colored_block.delete()
         self._colored_blocks = list()
 
-    def __init__(self, top_margin, block_size, split_size, rows_num, cols_num, show_place_holders=True,
+    def __init__(self, top_margin=51, block_size=58, split_size=5, rows_num=3, cols_num=5, show_place_holders=True,
                  _default_color=_DEFAULT_DISABLED_COLOR, parent=lv.scr_act()):
         self.parent = parent
         self.top_margin = top_margin
@@ -652,8 +654,12 @@ class Board:
             child = self.get_child(child)
 
 
+'''
 # Running Examples:
-# vec = [(0xff0000, [10, 20, 30, 40, 10, 20, 30, 100, 10, 20])]
-# tmp = ALTChart(input_vector=vec, chart_type=lv.chart.TYPE.LINE)]]
-# 25x25 800 bytes
-# 50x50 1500 bytes
+vec = [(0xff0000, [10, 20, 30, 40, 10, 20, 30, 100, 10, 20])]
+tmp = Chart(input_vector=vec, chart_type=lv.chart.TYPE.LINE)]]
+'''
+
+tmp1 = Board()
+tmp1.draw_widget(2, 2, 1, 1, 0xff0000)
+
