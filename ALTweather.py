@@ -1,23 +1,11 @@
 from ALTconnection import *
+from m5stack import rtc
+from m5stack_ui import M5Screen
+import ALTutils as uti
 
-################# UTILS ######################
-def _captilize_first_letter(s):
-    """
-    Capitilizes the first letter of each word in a given sentence.
-
-    Parameters
-    ----------
-    s : str
-        The sentence we want to capitalize.
-
-    Returns
-    -------
-    s : str
-        The modified sentence.
-    """
-    lst = [word[0].upper() + word[1:] for word in s.split()]
-    s = " ".join(lst)
-    return s
+screen = M5Screen()
+screen.clean_screen()
+screen.set_screen_bg_color(0xFFFFFF)
 
 ################# TIME #######################
 _NULL_TIME = '00:00'
@@ -40,25 +28,6 @@ def _get_month(month):
     dictionary = {1 : 'Jan', 2 : 'Feb', 3 : 'Mar', 4:'Apr', 5:'May', 6:'Jun',
                   7 : 'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12: 'Dec'}
     return dictionary.get(month, None)
-
-def _add_left_zero(s):
-    """
-    Adds '0' to the left of a string.
-
-    Parameters
-    ----------
-    s : str
-        The string we want to modify.
-
-    Returns
-    -------
-    : str
-        The string with a '0' concatentated to its left.
-    """
-    if len(s) == 1:
-        return '0' + s
-    else:
-        return s
 
 # Fetches the exact time from host: time.google.com
 def fetch_time(timezone = 3, host = 'time.google.com'):
@@ -85,7 +54,7 @@ def fetch_time(timezone = 3, host = 'time.google.com'):
         return _NULL_TIME
     rtc.settime('ntp', host=host, tzone=3)
     time_info = rtc.datetime()
-    return str(time_info[4]) + str(":") + str(time_info[5])
+    return uti.add_left_zero(str(time_info[4])) + str(":") + uti.add_left_zero(str(time_info[5]))
 
 def fetch_date_time(timezone = 3, host = 'time.google.com'):
     """
@@ -111,7 +80,7 @@ def fetch_date_time(timezone = 3, host = 'time.google.com'):
         return _NULL_DATE_TIME
     rtc.settime('ntp', host=host, tzone=3)
     time_info = rtc.datetime()
-    res = _add_left_zero(str(time_info[2])) + str(' ') + _get_month(time_info[1]) + str(' ') + _add_left_zero(str(time_info[4])) + str(":") + _add_left_zero(str(time_info[5]))
+    res = uti.add_left_zero(str(time_info[2])) + str(' ') + _get_month(time_info[1]) + str(' ') + uti.add_left_zero(str(time_info[4])) + str(":") + uti.add_left_zero(str(time_info[5]))
     return res
 
 import urequests
@@ -256,7 +225,7 @@ def fetch_local_weather_from_api(apikey, units):
     return {'city' : json_data["city"]["name"], 'date' : str(json_data["list"][0]["dt_txt"]),
             'pressure' : str(json_data["list"][0]["main"]["pressure"]), 'temperature' : str(round(json_data["list"][0]["main"]["temp"])),
             'humidity' : str(json_data["list"][0]["main"]["humidity"]), 'wind' : str(json_data["list"][0]["wind"]["speed"]),
-            'description' : _captilize_first_letter(json_data["list"][0]["weather"][0]["description"]), 'icon-url' : _fetch_icon_url_from_id(json_data["list"][0]["weather"][0]["icon"]),
+            'description' : uti.capitalize_first_letter(json_data["list"][0]["weather"][0]["description"]), 'icon-url' : _fetch_icon_url_from_id(json_data["list"][0]["weather"][0]["icon"]),
             'uv-index' : 'N/A', 'error-msg' : ''}
 
 
@@ -312,11 +281,6 @@ def _get_temp_id(units):
     dictionary = {'C' : 'temp_C', 'F' : 'temp_F'}
     return dictionary.get(units, None)
 
-# TODO: Implement this function, need to check all possible descriptions and maybe create a dictionary!
-def _fetch_icon_url_from_desc(desc):
-    return None
-
-# TODO: Function is kinda slow, because json is too big.. try and make it faster!
 def fetch_local_weather_from_web(units):
     """
     Parameters
@@ -327,9 +291,12 @@ def fetch_local_weather_from_web(units):
     Returns
     -------
     A dictionary that contains:
-    [city, date, pressure (hPa units), temperature, humidity (%), wind speed (meter/second), description, icon-id] 
+    [city, date, pressure (hPa units), temperature, humidity (%), wind speed (meter/second), description, icon-id, uv-index] 
     With valid values, and in case of failure in retrieving the information, a dictionary with 'N/A' values will be returned. 
     
+    Assumes:
+    -------
+    /flash/icons/no_weather.png exists
     """
     temp_id = _get_temp_id(units)
     if temp_id is None:
@@ -347,6 +314,5 @@ def fetch_local_weather_from_web(units):
     return {'city' : city, 'date' : json_data["localObsDateTime"],
             'pressure' : str(json_data["pressure"]), 'temperature' : str(json_data[temp_id]),
             'humidity' : str(json_data["humidity"]), 'wind' : str(round(float(json_data["windspeedKmph"])*0.277778, 2)),
-            'description' : _captilize_first_letter(json_data["weatherDesc"][0]["value"]), 'icon-url' : _fetch_icon_url_from_desc(json_data["weatherIconUrl"][0]["value"]),
+            'description' : uti.capitalize_first_letter(json_data["weatherDesc"][0]["value"]), 'icon-url' : '/flash/icons/globe.png',
             'uv-index' : str(weather["uvIndex"]), 'error-msg' : ''}
-    
