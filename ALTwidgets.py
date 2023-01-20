@@ -1,6 +1,11 @@
 import lvgl as lv
 import ALTelements as alte
 from m5stack import power
+from m5stack_ui import M5Screen
+
+screen = M5Screen()
+screen.clean_screen()
+screen.set_screen_bg_color(0xFFFFFF)
 
 LV_HOR_RES = 320
 LV_VER_RES = 240
@@ -9,6 +14,8 @@ _DEFAULT_TEXT_COLOR = 0x000000
 _DEFAULT_THEME_COLOR = 0x228B22
 _DEFAULT_DISABLED_COLOR = 0xf2f2f2
 _DEFAULT_RADIUS = 8
+_DEFAULT_ANIME_TIME = 100
+_DEFAULT_FONT = lv.font_montserrat_14
 
 class Title():
     """
@@ -242,6 +249,59 @@ class Title():
         self.cloud_icon.delete()
         self.cloud_icon = None
         self._update_positions()
+        
+class FadingButton(alte.Button):
+    def _event_handler(self, source, evt):
+        if evt == lv.EVENT.PRESSING:
+            super().set_pos(10, 70)
+            super().set_size(300, 100)
+            c = self.get_child(None)
+            c.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, lv.font_montserrat_34)
+
+        elif evt == lv.EVENT.RELEASED:
+            super().set_pos(self.primal_x, self.primal_y)
+            super().set_size(self.primal_width, self.primal_height)
+            c = self.get_child(None)
+            c.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, self.primal_font)
+
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Button', text_color=_DEFAULT_TEXT_COLOR,
+                 color=_DEFAULT_THEME_COLOR, height=50, width=100, is_toggled=False, font=_DEFAULT_FONT,
+                 radius=_DEFAULT_RADIUS):
+        super().__init__(parent=parent, x=x, y=y, text=text, text_color=text_color, color=color, height=height,
+                         width=width, is_toggled=is_toggled, font=font, radius=radius)
+        self.primal_x = x
+        self.primal_y = y
+        self.primal_height = height
+        self.primal_width = width
+        self.primal_font = font
+
+        self.set_event_cb(self._event_handler)
+
+    def set_pos(self, x, y):
+        super().set_pos(x, y)
+        self.primal_x = x
+        self.primal_y = y
+
+    def set_x(self, x):
+        super().set_x(x)
+        self.primal_x = x
+
+    def set_y(self, y):
+        super().set_y(y)
+        self.primal_y = y
+
+    def set_size(self, width, height):
+        super().set_size(width, height)
+        self.primal_height = height
+        self.primal_width = width
+
+    def set_width(self, width):
+        super().set_width(width)
+        self.primal_width = width
+
+    def set_height(self, height):
+        super().set_height(height)
+        self.primal_height = height
 
 class _DialogBase():
     """
@@ -427,3 +487,108 @@ class Confirmation(_DialogBase):
         self.confirm_func = confirm_func
         self.args = args
         super().set_evt_cb_aux(self._mbox_event_cb)
+        
+class _Widget(alte.Container):
+    def _gl_delete_widget(self, board, widget):
+        board.delete_widget(widget)
+
+    def _event_handler(self, source, event):
+        if event == lv.EVENT.LONG_PRESSED and not self.is_place_holder:
+            # Delete widget from main board
+            conf = Confirmation('Remove Widget?', _DEFAULT_TEXT_COLOR, '', _DEFAULT_TEXT_COLOR, 0xFFFFFF, self._gl_delete_widget,
+                                   self._board, self)
+
+    def __init__(self, board, height, width, row, col, color, is_place_holder, parent=lv.scr_act()):
+        height_in_pixels = board.block_size * height + (height - 1) * board.split_size
+        width_in_pixels = board.block_size * width + (width - 1) * board.split_size
+        super().__init__(parent=parent, height=height_in_pixels, width=width_in_pixels, color=color)
+        if not (0 <= row < board.rows_num) or (not 0 <= col < board.cols_num) or not (
+                row + height <= board.rows_num) or (not col + width <= board.cols_num) or height <= 0 or width <= 0:
+            raise Exception('Invalid Parameters')
+
+        self._board = board
+        self.is_place_holder = is_place_holder
+        self.reserved_blocks = list()
+
+        # Drawing the container
+        height_cords = board.top_margin + row * (board.block_size + board.split_size)
+        left_cords = board.block_size * col + board.split_size * (1 + col)
+
+        self.set_pos(left_cords, height_cords)
+
+        self.set_event_cb(self._event_handler)
+
+        for i in range(height):
+            for j in range(width):
+                self.reserved_blocks.append([row + i, col + j])
+
+
+class Board:
+    def _init_board(self):
+        for row in range(self.rows_num):
+            for col in range(self.cols_num):
+                # Filling the board with place-holders
+                empty_block = _Widget(parent=self.parent, board=self, height=1, width=1, row=row, col=col,
+                                      color=self._default_color, is_place_holder=True)
+                if not self._show_place_holders:
+                    empty_block.set_hidden(True)
+                self._background_blocks.append(empty_block)
+
+    def reset_board(self):
+        if self._show_place_holders:
+            for background_block in self._background_blocks:
+                background_block.set_hidden(False)
+        for colored_block in self._colored_blocks:
+            colored_block.delete()
+        self._colored_blocks = list()
+
+    def __init__(self, top_margin=51, block_size=58, split_size=5, rows_num=3, cols_num=5, show_place_holders=True,
+                 _default_color=_DEFAULT_DISABLED_COLOR, parent=lv.scr_act()):
+        self.parent = parent
+        self.top_margin = top_margin
+        self.block_size = block_size
+        self.split_size = split_size
+        self.rows_num = rows_num
+        self.cols_num = cols_num
+        self._show_place_holders = show_place_holders
+        self._default_color = _default_color
+        self._background_blocks = list()
+        self._colored_blocks = list()
+        self._init_board()
+
+    def draw_widget(self, height, width, row, col, color):
+        # Checking for collision
+        for i, j in [(i, j) for i in range(height) for j in range(width)]:
+            if any([row + i, col + j] in colored_block.reserved_blocks for colored_block in self._colored_blocks):
+                return None
+
+        widget = _Widget(self, parent=self.parent, height=height, width=width, row=row, col=col, color=color,
+                         is_place_holder=False)
+        self._colored_blocks.append(widget)
+        # Hide background blocks
+        for i, j in widget.reserved_blocks:
+            self._background_blocks[i * self.cols_num + j].set_hidden(True)
+        return widget
+
+    def delete_widget(self, widget):
+        if self._show_place_holders:
+            for i, j in widget.reserved_blocks:
+                self._background_blocks[i * self.cols_num + j].set_hidden(False)
+        widget.delete()
+
+    def delete(self):
+        for background_block in self._background_blocks:
+            background_block.delete()
+        for colored_block in self._colored_blocks:
+            colored_block.delete()
+        self._background_blocks = list()
+        self._colored_blocks = list()
+
+    def d_refresh(self):
+        child = self.get_child(None)
+        while child:
+            try:
+                child.d_refresh()
+            except AttributeError as e:
+                print(__name__ + ': ' + str(e))
+            child = self.get_child(child)
