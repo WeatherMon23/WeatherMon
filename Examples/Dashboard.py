@@ -202,12 +202,11 @@ def s_theme_drop_event(obj, event):
 g_cont = alte.Container(x=0, y=t.get_height(), height=LV_VER_RES - t.get_height(), width=LV_HOR_RES, color=w_colors['light_bg'], radius=0)
 g_drop = alte.Dropdown(parent=g_cont, x=35, y=5, width=250, options=['Local Temp (' + units +')', 'Remote Temp (' + units +')', 'Local Pressure (kPa)', 'Remote Pressure (kPa)'], color=w_colors['dark_bg'])
 g_temp = alte.Gauge(parent=g_cont, x=80, y=44, gauge_color=0xFF0000, length=160, initial_value=0, max_value=50)
-g_pres = alte.Gauge(parent=g_cont, x=80, y=44, gauge_color=0xFF0000, length=160, initial_value=90, min_value = 90, max_value=110)
+g_pres = alte.Gauge(parent=g_cont, x=80, y=44, gauge_color=0xFF0000, length=160, initial_value=900, min_value = 900, max_value=1100)
 g_pres.set_hidden(True)
 g_cont.set_hidden(True)
 g_drop.set_event_cb(s_theme_drop_event)
 # --------------------------------------------------------------- #
-
 # ---------------------- Main Page Funcs ---------------------------#
 def main_page_change_state(hidden):
     global b
