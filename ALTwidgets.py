@@ -35,6 +35,7 @@ class Title():
 
     Methods
     -------
+    set_height()
     clear_title()
     delete()
     set_text()
@@ -110,13 +111,36 @@ class Title():
         color : hex int
             The color of the status bar. (default is 0x000000 (black))
         """
-        self.line = alte.Container(x=0, y=0, height=26, width=LV_HOR_RES, color=color, radius=0)
+        self.height=26
+        self.line = alte.Container(x=0, y=0, height=self.height, width=LV_HOR_RES, color=color, radius=0)
         self.left_label = alte.Label(self.line, x=6, y=5, text=text, text_color=text_color)
         self.battery_label = alte.Label(self.line, x=265, y=5, text=self._calc_battery_per(), text_color=text_color)
         self.battery_label.set_hidden(True)
 
         self.wifi_icon = None
         self.cloud_icon = None
+
+    def get_height(self):
+        """
+        Returns the height of the title's container.
+
+        """
+        return self.height
+
+    def set_color(self, color):
+        """
+        Sets the title's container's color.
+
+        """
+        self.line.set_style_local_bg_color(self.line.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(color))
+
+    def set_text_color(self, color):
+        """
+        Sets the title's container's color.
+
+        """
+        self.left_label.set_style_local_text_color(self.left_label.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(color))
+        self.battery_label.set_style_local_text_color(self.battery_label.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(color))
 
     def clear_title(self):
         """
@@ -249,7 +273,40 @@ class Title():
 
 
 class FadingButton(alte.Button):
+    """
+    A class that implements a button, when long pressed, becomes large.
+    When the long press is released, it returns to normal size.
+
+    ...
+
+    Attributes
+    ----------
+    primal_x : int
+        The original x coordinate.
+    primal_y : int
+        The original y coordinate.
+    primal_width : int
+        The original width.
+    primal_height : int
+        The original height.
+    primal_font : int
+        The original font.
+
+    Overrides
+    -------
+    set_pos()
+    set_x()
+    set_y()
+    set_size()
+    set_width()
+    set_height()
+    """
     def _event_handler(self, source, evt):
+        """
+        Event callback function.
+        When long pressed, the button becomes large.
+        When released, the button returns to the normal size.
+        """
         if evt == lv.EVENT.PRESSING:
             super().set_pos(10, 70)
             super().set_size(300, 100)
@@ -265,6 +322,25 @@ class FadingButton(alte.Button):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Button', text_color=_DEFAULT_TEXT_COLOR,
                  color=_DEFAULT_THEME_COLOR, height=50, width=100, is_toggled=False, font=_DEFAULT_FONT,
                  radius=_DEFAULT_RADIUS):
+        """
+        Parameters
+        ----------
+        parent : lv.obj
+            The button's parent widget.
+        x : int
+            The button's on screen x-coordinate. 
+        y : int
+            The button's on screen y-coordinate.
+        text : str
+        text_color : hex int
+        color: hex int
+        height: int
+        width: int
+        is_toggled : bool
+        font : lv.font_*
+        radius : int
+            The button corner's radius.
+        """
         super().__init__(parent=parent, x=x, y=y, text=text, text_color=text_color, color=color, height=height,
                          width=width, is_toggled=is_toggled, font=font, radius=radius)
         self.primal_x = x
@@ -276,28 +352,52 @@ class FadingButton(alte.Button):
         self.set_event_cb(self._event_handler)
 
     def set_pos(self, x, y):
+        """
+        Sets the button's position to x,y.
+
+        """
         super().set_pos(x, y)
         self.primal_x = x
         self.primal_y = y
 
     def set_x(self, x):
+        """
+        Sets the button's x-coordinate.
+
+        """
         super().set_x(x)
         self.primal_x = x
 
     def set_y(self, y):
+        """
+        Sets the button's y-coordinate.
+
+        """
         super().set_y(y)
         self.primal_y = y
 
     def set_size(self, width, height):
+        """
+        Sets the button's size.
+
+        """
         super().set_size(width, height)
         self.primal_height = height
         self.primal_width = width
 
     def set_width(self, width):
+        """
+        Sets the button's width.
+
+        """
         super().set_width(width)
         self.primal_width = width
 
     def set_height(self, height):
+        """
+        Sets the button's height.
+
+        """
         super().set_height(height)
         self.primal_height = height
 
@@ -584,6 +684,10 @@ class Board:
             colored_block.delete()
         self._background_blocks = list()
         self._colored_blocks = list()
+
+    def set_hidden(self, hidden):
+        for colored_block in self._colored_blocks:
+            colored_block.set_hidden(hidden)
 
     def d_refresh(self):
         child = self.get_child(None)

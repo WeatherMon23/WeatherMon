@@ -225,15 +225,15 @@ def fetch_local_weather_from_api(apikey, units):
     try:
         json_data = _get_weather_json_from_api(apikey, units)
     except Exception as e:
-        return {'city': 'N/A', 'date': 'N/A', 'pressure': 'N/A', 'temperature': 'N/A',
-                'humidity': 'N/A', 'wind': 'N/A', 'description': 'N/A', 'icon-url': 'res/error.png',
-                'uv-index': 'N/A', 'error-msg': str(e)}
+        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000.0', 'temperature': '00',
+                'humidity': '00', 'wind': '00', 'description': 'N/A', 'icon-url': 'res/error.png',
+                'uv-index': '0', 'error-msg': str(e)}
     return {'city': json_data["city"]["name"], 'date': str(json_data["list"][0]["dt_txt"]),
             'pressure': str(json_data["list"][0]["main"]["pressure"]),
             'temperature': str(round(json_data["list"][0]["main"]["temp"])),
             'humidity': str(json_data["list"][0]["main"]["humidity"]),
             'wind': str(json_data["list"][0]["wind"]["speed"]),
-            'description': str(json_data["list"][0]["weather"][0]["description"]).title(),
+            'description': uti.capitalize_first_letter(str(json_data["list"][0]["weather"][0]["description"])),
             'icon-url': _fetch_icon_url_from_id(json_data["list"][0]["weather"][0]["icon"]),
             'uv-index': 'N/A', 'error-msg': ''}
 
@@ -316,14 +316,14 @@ def fetch_local_weather_from_web(units):
         city = _get_city_from_curr_ip()
         json_data = _get_weather_json_from_web(city)
     except Exception as e:
-        return {'city': 'N/A', 'date': 'N/A', 'pressure': 'N/A', 'temperature': 'N/A',
-                'humidity': 'N/A', 'wind': 'N/A', 'description': 'N/A', 'icon-url': 'res/error.png',
-                'uv-index': 'N/A', 'error-msg': str(e)}
+        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000.0', 'temperature': '00',
+                'humidity': '00', 'wind': '00', 'description': 'N/A', 'icon-url': 'res/error.png',
+                'uv-index': '0', 'error-msg': str(e)}
     weather = json_data['weather'][0]
     json_data = json_data['current_condition'][0]
     return {'city': city, 'date': json_data["localObsDateTime"],
             'pressure': str(json_data["pressure"]), 'temperature': str(json_data[temp_id]),
             'humidity': str(json_data["humidity"]), 'wind': str(round(float(json_data["windspeedKmph"]) * 0.277778, 2)),
-            'description': str(json_data["weatherDesc"][0]["value"]).title(),
+            'description': uti.capitalize_first_letter(str(json_data["weatherDesc"][0]["value"])),
             'icon-url': '/flash/icons/globe.png',
             'uv-index': str(weather["uvIndex"]), 'error-msg': ''}

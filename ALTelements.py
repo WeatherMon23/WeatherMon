@@ -1,6 +1,6 @@
 import lvgl as lv
 from imagetools import get_png_info, open_png
-from urequests import *
+import urequests
 
 _DEFAULT_TEXT_COLOR = 0x000000
 _DEFAULT_THEME_COLOR = 0x228B22
@@ -75,17 +75,6 @@ class Image(lv.img):
 
 
 class Label(lv.label):
-    def _event_handler(self, source, evt):
-        if evt == lv.EVENT.PRESSING:
-            super().set_pos(10, 70)
-            super().set_size(300,
-                             100)  # self.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT,lv.font_montserrat_34)
-
-        elif evt == lv.EVENT.RELEASED:
-            super().set_pos(self._o_x, self._o_y)
-            super().set_size(self._o_width,
-                             self._o_height)  # self.set_style_local_text_font(self.PART.MAIN, lv.STATE.DEFAULT, self._o_font)
-
     def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Label', text_color=_DEFAULT_TEXT_COLOR, font=_DEFAULT_FONT,
                  width=0, long_mode=lv.label.LONG.EXPAND, alignment=lv.label.ALIGN.CENTER):
         super().__init__(parent)
@@ -112,8 +101,6 @@ class Label(lv.label):
         style_main.set_text_font(lv.STATE.DEFAULT, font)
         style_main.set_text_color(lv.STATE.DEFAULT, lv.color_hex(text_color))
         self.add_style(self.PART.MAIN, style_main)
-
-        self.set_event_cb(self._event_handler)
 
     # func() returns a string to be displayed inside the label
     def d_refresh(self, func=None, *args):
@@ -222,7 +209,7 @@ class Table(lv.table):
 
 
 class Switch(lv.switch):
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, color=_DEFAULT_THEME_COLOR):
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, color=_DEFAULT_THEME_COLOR, unchecked_bg=None):
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_anim_time(_DEFAULT_ANIME_TIME)
@@ -236,6 +223,8 @@ class Switch(lv.switch):
 
         style_bg = lv.style_t()
         style_bg.init()
+        if unchecked_bg != None:
+            style_bg.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(unchecked_bg))
         style_bg.set_outline_width(lv.STATE.DEFAULT, 0)
         self.add_style(self.PART.BG, style_bg)
 
@@ -264,9 +253,10 @@ class Cpicker(lv.cpicker):
 
 
 class Dropdown(lv.dropdown):
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, options=[], color=_DEFAULT_THEME_COLOR):
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, width=100, options=[], color=_DEFAULT_THEME_COLOR):
         super().__init__(parent)
         self.set_pos(x, y)
+        self.set_width(width)
         self.set_options("\n".join(options))
 
         style_main = lv.style_t()
@@ -424,10 +414,18 @@ class Chart(lv.chart):
             self.set_style_local_bg_grad_stop(lv.chart.PART.SERIES, lv.STATE.DEFAULT, 0)
         for color, points in input_vector:
             tmp_ser = self.add_series(lv.color_hex(color))
-            self.set_points(tmp_ser, points)
+            super().set_points(tmp_ser, points)
             self._series.append(tmp_ser)
         self.refresh()
 
+    def set_points(self, input_vector):
+        for series in self._series:
+            self.clear_series(series)
+        self._series = list()
+        for color, points in input_vector:
+            tmp_ser = self.add_series(lv.color_hex(color))
+            super().set_points(tmp_ser, points)
+        self.refresh()
     # func() returns data in the following format: `[(0xff0000, [point1, point2, point3]), (0x00ff00, [point1, point2, point3])]` to draw a new series inside the chart
     def d_refresh(self, func=None, *args):
         if not func:
@@ -449,13 +447,23 @@ class Gauge(lv.gauge):
         self.set_pos(x, y)
         self.set_size(length, length)
         self.set_needle_count(1, [lv.color_hex(gauge_color)])
-        self.set_value(0, initial_value)
+        super().set_value(0, initial_value)
         self.set_range(min_value, max_value)
+        super().set_critical_value(max_value - round((max_value-min_value)/5))
 
         style_bg = lv.style_t()
         style_bg.init()
-        style_bg.set_border_width(lv.STATE.DEFAULT, 0)
+        style_bg.set_border_width(lv.STATE.DEFAULT, 1)
         self.add_style(self.PART.MAIN, style_bg)
+
+    def set_value(self, value):
+        super().set_value(0, value)
+
+    def set_critical_value(self, value = None):
+        if value == None:
+            super().set_critical_value(self.get_max_value() - round((self.get_max_value()-self.get_min_value())/5))
+        else:
+            super().set_critical_value(value)
 
     # func() returns an integer within the gauge's range of value and changes needle's direction accordingly
     def d_refresh(self, func=None, *args):
