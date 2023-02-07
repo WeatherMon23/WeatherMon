@@ -87,6 +87,54 @@ def fetch_date_time(timezone=3, host='time.google.com'):
 import urequests
 import ujson
 
+def C_to_F(degree):
+    """
+    Converts temperature degrees in Celsius to Fahrenheit
+
+    Parameters
+    ----------
+    degree : int
+        The degree in Celsius.
+
+    Returns
+    -------
+    : float
+        The degree in Fahrenheit.
+    """
+    return float(degree) * 1.8 + 35
+
+def F_to_C(degree):
+    """
+    Converts temperature degrees in Fahrenheit to Celsius
+
+    Parameters
+    ----------
+    degree : int
+        The degree in Fahrenheit.
+
+    Returns
+    -------
+    : float
+        The degree in Celsius.
+    """
+    return (float(degree) - 35) / 1.8
+
+def hPa_to_kPa(degree):
+    """
+    Converts pressure degrees in hPa to kPa
+
+    Parameters
+    ----------
+    degree : int
+        The degree in hPa.
+
+    Returns
+    -------
+    : float
+        The degree in kPa.
+    """
+    return float(degree / 10)
+
 
 """ WEATHER FROM API """
 # Fetches weather from: https://openweathermap.org
@@ -98,8 +146,15 @@ def _get_curr_ip():
     ip : str
         The current device's IP address.
         
+    Raises
+    -------
+    Exception in case of connection failure to the site: https://api.ipify.org
+        
     """
-    ip = urequests.get('https://api.ipify.org').content.decode('utf8')
+    try:
+        ip = urequests.get('https://api.ipify.org').content.decode('utf8')
+    except Exception as e:
+        raise Exception(__name__ + ': ' + str(e))
     return ip
 
 
@@ -111,10 +166,17 @@ def _get_lat_long_from_curr_ip():
         A list that contains the current longtitude and latitude of the device,
         according to the device's IP address.
         The format: ['latitude', 'longtitude']
+    
+    Raises:
+    -------
+    Exception in case of connection failure to the site: https://ipapi.co
         
     """
     ip = _get_curr_ip()
-    latlong = urequests.get('https://ipapi.co/{}/latlong/'.format(ip)).text.split(',')
+    try:
+        latlong = urequests.get('https://ipapi.co/{}/latlong/'.format(ip)).text.split(',')
+    except Exception as e:
+        raise Exception(__name__ + ': ' + str(e))
     return latlong
 
 
@@ -125,9 +187,16 @@ def _get_city_from_curr_ip():
     city : str
         The city according to the device's IP address.
         
+    Raises
+    -------
+    Exception in case of connection failure to the site: https://ipapi.co
+        
     """
     ip = _get_curr_ip()
-    city = urequests.get('https://ipapi.co/{}/city/'.format(ip)).text
+    try:
+        city = urequests.get('https://ipapi.co/{}/city/'.format(ip)).text
+    except Exception as e:
+        raise Exception(__name__ + ': ' + str(e))
     return city
 
 
@@ -176,15 +245,15 @@ def _get_weather_json_from_api(apikey, units_string):
     """
     check_connection()
     latlong = _get_lat_long_from_curr_ip()
-    req = urequests.get('https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}&units=metric&cnt=1'
-                        .format(latlong[0], latlong[1], apikey)).text
-    try:
-        json_data = ujson.loads((req))
-    except Exception as e:
-        raise Exception(__name__ + ': Error fetching info from API')
-    return json_data
-
-
+    req = urequests.get('https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}&units={}&cnt=1'
+                        .format(latlong[0], latlong[1], apikey, units_string)).text
+    json_data = ujson.loads((req))
+    # If error code is 200, it means that the request succeeded
+    if json_data['cod'] == '200' and json_data['message'] == 0:
+        return json_data
+    else:
+        raise Exception(__name__ + ': Error code ' + str(json_data['cod']) + ': ' + str(json_data['message']))
+    
 def _fetch_icon_url_from_id(icon_id):
     """
     Parameters
@@ -215,7 +284,6 @@ def fetch_local_weather_from_api(apikey, units):
     -------
     A dictionary that contains:
     [city, date, pressure (hPa units), temperature, humidity (%), wind speed (if imperial: miles/hour else meter/second), discription, icon-id]
-    Note: The API doesn't return uv-index, therefore the value is always 'N/A'.
     With valid values, and in case of failure in retrieving the information, a dictionary with 'N/A' values will be returned. 
     
     """
@@ -223,19 +291,17 @@ def fetch_local_weather_from_api(apikey, units):
     if units_string is None:
         raise Exception(__name__ + ': Units must either be : K, F, C')
     try:
-        json_data = _get_weather_json_from_api(apikey, units)
+        json_data = _get_weather_json_from_api(apikey, units_string)
     except Exception as e:
-        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000.0', 'temperature': '00',
-                'humidity': '00', 'wind': '00', 'description': 'N/A', 'icon-url': 'res/error.png',
-                'uv-index': '0', 'error-msg': str(e)}
+        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000', 'temperature': '00',
+                'humidity': '00', 'wind': '00', 'description': 'N/A', 'icon-url': 'icons/error.png', 'error-msg': str(e)}
     return {'city': json_data["city"]["name"], 'date': str(json_data["list"][0]["dt_txt"]),
             'pressure': str(json_data["list"][0]["main"]["pressure"]),
             'temperature': str(round(json_data["list"][0]["main"]["temp"])),
             'humidity': str(json_data["list"][0]["main"]["humidity"]),
             'wind': str(json_data["list"][0]["wind"]["speed"]),
             'description': uti.capitalize_first_letter(str(json_data["list"][0]["weather"][0]["description"])),
-            'icon-url': _fetch_icon_url_from_id(json_data["list"][0]["weather"][0]["icon"]),
-            'uv-index': 'N/A', 'error-msg': ''}
+            'icon-url': _fetch_icon_url_from_id(json_data["list"][0]["weather"][0]["icon"]), 'error-msg': ''}
 
 
 """ WEATHER FROM wttr.in """
@@ -262,8 +328,8 @@ def _get_weather_json_from_web(city):
     """
     # Spaces are replaced by '+' to make the url legal according to the websites' rules.
     city_m = city.replace(' ', '+')
-    req_text = urequests.get("https://wttr.in/{}?format=j2".format(city_m)).text
     try:
+        req_text = urequests.get("https://wttr.in/{}?format=j2".format(city_m)).text
         json_data = ujson.loads((req_text))
     except Exception as e:
         raise Exception(__name__ + ": https://wttr.in is currently down, can't fetch weather data.")
@@ -316,8 +382,8 @@ def fetch_local_weather_from_web(units):
         city = _get_city_from_curr_ip()
         json_data = _get_weather_json_from_web(city)
     except Exception as e:
-        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000.0', 'temperature': '00',
-                'humidity': '00', 'wind': '00', 'description': 'N/A', 'icon-url': 'res/error.png',
+        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000', 'temperature': '00',
+                'humidity': '00', 'wind': '00', 'description': 'N/A', 'icon-url': 'icons/error.png',
                 'uv-index': '0', 'error-msg': str(e)}
     weather = json_data['weather'][0]
     json_data = json_data['current_condition'][0]
