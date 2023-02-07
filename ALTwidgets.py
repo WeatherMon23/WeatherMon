@@ -508,7 +508,7 @@ class _DialogBase():
         lv.anim_t.start(a)
 
     def set_evt_cb_aux(self, func):
-        self.mbox.set_event_cb(self._mbox_event_cb)
+        self.mbox.set_event_cb(func)
 
 
 class Alert(_DialogBase):
@@ -518,7 +518,22 @@ class Alert(_DialogBase):
 
     """
 
-    def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title='', title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF):
+    def _mbox_event_cb_child(self, obj, evt):
+        """
+        A cutomized event callback function that exectues close_func upon clicking on
+        the close button.
+
+        """
+        if evt == lv.EVENT.DELETE:
+            # Delete the parent modal background
+            lv.obj.del_async(obj.get_parent())
+        elif evt == lv.EVENT.VALUE_CHANGED:
+            # a button was clicked
+            if obj.get_active_btn_text() == "Close":
+                self.close_func(*self.args)
+            obj.start_auto_close(0)
+
+    def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title='', title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF, close_func=None, *args):
         """
         Parameters
         ----------
@@ -536,7 +551,10 @@ class Alert(_DialogBase):
         """
         btns = ["Close", ""]
         super().__init__(text, text_color, title, title_color, color, btns)
-
+        self.close_func = close_func
+        self.args = args
+        if close_func != None:
+            super().set_evt_cb_aux(self._mbox_event_cb_child)
 
 class Confirmation(_DialogBase):
     """
@@ -547,7 +565,7 @@ class Confirmation(_DialogBase):
 
     """
 
-    def _mbox_event_cb(self, obj, evt):
+    def _mbox_event_cb_child(self, obj, evt):
         """
         A cutomized event callback function that exectues confirm_func upon clicking on
         the confirm button.
@@ -585,7 +603,8 @@ class Confirmation(_DialogBase):
         super().__init__(text, text_color, title, title_color, color, btns)
         self.confirm_func = confirm_func
         self.args = args
-        super().set_evt_cb_aux(self._mbox_event_cb)
+        if confirm_func != None:
+            super().set_evt_cb_aux(self._mbox_event_cb_child)
 
 MAX_BR = 100
 MIN_BR = 20
