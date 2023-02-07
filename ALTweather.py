@@ -245,8 +245,11 @@ def _get_weather_json_from_api(apikey, units_string):
     """
     check_connection()
     latlong = _get_lat_long_from_curr_ip()
-    req = urequests.get('https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}&units={}&cnt=1'
-                        .format(latlong[0], latlong[1], apikey, units_string)).text
+    try:
+        req = urequests.get('https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}&units={}&cnt=1'
+                            .format(latlong[0], latlong[1], apikey, units_string)).text
+    except Exception as e:
+        raise Exception(__name__ + ": Error connecting to https://api.openweathermap.org")
     json_data = ujson.loads((req))
     # If error code is 200, it means that the request succeeded
     if json_data['cod'] == '200' and json_data['message'] == 0:
