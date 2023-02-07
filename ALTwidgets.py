@@ -587,6 +587,70 @@ class Confirmation(_DialogBase):
         self.args = args
         super().set_evt_cb_aux(self._mbox_event_cb)
 
+MAX_BR = 100
+MIN_BR = 20
+class BrightnessSlider(alte.Slider):
+    """
+    A class that implements a brightness slider.
+    A slider with label under, changes the brightness relative to MAX_BR and MIN_BR
+
+    """
+    def _compute_relative_br(self, value):
+        """
+        A function that commputes the relative brightness.
+        
+        Parameters
+        ----------
+        value : str
+            A value between slider.min_value and slider.max_value.
+            
+        Returns
+        ---------
+        : int
+            An integer between MIN_BR and MAX_BR.
+        """
+        relative = self.get_max_value() - self.get_min_value()
+        return MIN_BR + int((value * (MAX_BR - MIN_BR)) / relative)
+
+    def _event_handler(self, source, evt):
+        """
+        A cutomized event callback function that changes the label's text and brightness when there's
+        a value change.
+
+        """
+        super()._event_handler(source, evt)
+        if evt == lv.EVENT.VALUE_CHANGED:
+            brightness = self._compute_relative_br(self.get_value())
+            power.setLCDBrightness(brightness)
+    
+    def set_value(self, value):
+        """
+        Sets the slider's label value and screen brightness.
+
+        """
+        super().set_value(value)
+        brightness = self._compute_relative_br(value)
+        power.setLCDBrightness(brightness)
+
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, width=200, color=_DEFAULT_THEME_COLOR):
+        """
+        Parameters
+        ----------
+        parent : lv.obj
+            The parent of the slider (Default is the active screen).
+        x : int
+            The slider's x-coordinate.
+        y : int
+            The slider's y-coordinate.
+        width : int
+            The slider's width (Default is 200)
+        color : hex int
+            The slider's main color (Default is black).
+
+        """
+        super().__init__(parent=parent, x=x, y=y, width=width, min_value=0, max_value=100, color=color)
+        self.set_event_cb(self._event_handler)
+        self.set_value(self.get_max_value())
 
 class _Widget(alte.Container):
     def _gl_delete_widget(self, board, widget):
