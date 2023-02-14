@@ -21,8 +21,9 @@ LV_VER_RES = 240
     index 1: Light Theme
     index 2: Dark Theme
 '''
-DEFAULT_THEME = -1
-global_themes = [{'dark' : 0x115400, 'light' : 0x1C8900, 'font' : 0xFFFFFF},
+DEFAULT_THEME = 0
+global_themes = [{'dark' : 0x00093D, 'light' : 0x000D54, 'font' : 0xFFFFFF},
+                 {'dark' : 0x115400, 'light' : 0x1C8900, 'font' : 0xFFFFFF},
                  {'dark' : 0xD8D8D8, 'light' : 0xFFFFFF, 'font' : 0x000000},
                  {'dark' : 0x000000, 'light' : 0x2A2A2A, 'font' : 0xFFFFFF}]
 
@@ -115,7 +116,7 @@ def s_refresh_drop_event(obj, event):
 #         s_units_switch_option = state
 #         print(s_units_switch_option)
 
-theme_dict = {'Original' : -1 , 'Green' : 0, 'Light' : 1, 'Dark' : 2}
+theme_dict = {'Original' : 0 , 'Green' : 1, 'Light' : 2, 'Dark' : 3}
 rate_dict = {'2 min' : 120, '5 min' : 300, '10 min' : 600, '20 min' : 1200}
 def manage_settings():
     global major_refresh_rate, s_refresh_drop_option, s_theme_drop_option, units, theme_dict, rate_dict
@@ -126,18 +127,18 @@ def manage_settings():
     # if s_units_switch_option:
     #     units = 'F'
     #     if units_old != units:
-    #         temp_val.set_text(str(int(altu.C_to_F(local_temp))) + units)
-    #         remote_disc.set_text(str(int(altu.C_to_F(remote_temp))) + units)
-    #         g_temp.set_range(round(altu.C_to_F(0)), round(altu.C_to_F(50)))
+    #         temp_val.set_text(str(int(C_to_F(local_temp))) + units)
+    #         remote_disc.set_text(str(int(C_to_F(remote_temp))) + units)
+    #         g_temp.set_range(round(C_to_F(0)), round(C_to_F(50)))
     #         g_temp.set_critical_value()
     # else:
     #     units = 'C'
     #     if units_old != units:
-    #         temp_val.set_text(str(int(altu.F_to_C(local_temp))) + units)
-    #         remote_disc.set_text(str(int(altu.F_to_C(remote_temp))) + units)
+    #         temp_val.set_text(str(int(F_to_C(local_temp))) + units)
+    #         remote_disc.set_text(str(int(F_to_C(remote_temp))) + units)
     #         g_temp.set_range(0,50)
     #         g_temp.set_critical_value()
-    #         g_temp.set_value(int(altu.F_to_C(local_temp)))
+    #         g_temp.set_value(int(F_to_C(local_temp)))
     # g_drop.set_options("\n".join(['Local Temp (' + units +')', 'Remote Temp (' + units +')', 'Local Pressure (kPa)', 'Remote Pressure (kPa)']))
     # g_temp.set_hidden(False)
     # g_pres.set_hidden(True)
@@ -191,12 +192,12 @@ def s_theme_drop_event(obj, event):
         if g_drop_option == 'Local Pressure':
             g_pres.set_hidden(False)
             g_temp.set_hidden(True)
-            g_pres.set_value(int(altu.hPa_to_kPa(local_pressure)))
+            g_pres.set_value(int(hPa_to_kPa(local_pressure)))
             print(str(g_drop_option + str(' ') + str(local_pressure)))
         if g_drop_option == 'Remote Pressure':
             g_pres.set_hidden(False)
             g_temp.set_hidden(True)
-            g_pres.set_value(int(altu.hPa_to_kPa(remote_pressure)))
+            g_pres.set_value(int(hPa_to_kPa(remote_pressure)))
             print(str(g_drop_option + str(' ') + str(remote_pressure)))
 
 g_cont = alte.Container(x=0, y=t.get_height(), height=LV_VER_RES - t.get_height(), width=LV_HOR_RES, color=w_colors['light_bg'], radius=0)
@@ -251,32 +252,32 @@ btnC.wasPressed(btnC_pressed)
 
 # --------------------------------------------------------------- #
 # ---------------------- MQTT ---------------------------#
+def alert_close_func():
+    global alert_flag
+    alert_flag = True
+
 def fetch_data(topic_data):
     global remote_temp, remote_pressure, units, alert_flag
-    # json_data = ujson.loads(str(topic_data))
-    # temp = str(round(float(json_data['temp'])))
-    # pressure = str(round(float(json_data['pressure'])))
-    data_list = topic_data.split(',')
-    pressure = int(float(data_list[1]))
+    print(topic_data)
+    json_data = ujson.loads(str(topic_data))
+    remote_pressure = int(json_data['pressure'])
     if units == 'C':
-        temp = int(float(data_list[0]))
+        remote_temp = int(json_data['temperature'])
     else:
-        temp = int(float(altu.C_to_F(data_list[0])))
+        remote_temp = C_to_F(int(json_data['temperature']))
     
     if alert_flag:
         alert_flag = False
-        a = altw.Alert('BPS has detected ubnormal temperature.', title=lv.SYMBOL.WARNING + " Warning!", title_color=0xFF0000,
-                  color=global_themes[theme_dict[s_theme_drop_option]]['light'])
+        a = altw.Alert(text='BPS has detected ubnormal temperature.', text_color=global_themes[theme_dict[s_theme_drop_option]]['font'], title=lv.SYMBOL.WARNING + " Warning!", title_color=0xFF0000,
+                  color=global_themes[theme_dict[s_theme_drop_option]]['light'], close_func=alert_close_func)
         #TODO - Ahmad: Add SMS/Email code here.
         
-    remote_temp = temp
-    remote_pressure = pressure
-    remote_disc.set_text('Temp: ' + str(temp) + units)
-    remote_pres.set_text(str(pressure) + ' hPa')
+    remote_disc.set_text('Temp: ' + str(remote_temp) + units)
+    remote_pres.set_text(str(remote_pressure) + ' hPa')
     pass
 
-connect_wifi("ICST", "arduino123")
-m5mqtt = M5mqtt('subscriber', 'io.adafruit.com', 1883, 'WeatherMon', 'aio_oKhW29k80lJIXQn7cIWjpfZDxcbX', 300)
+connect_wifi("", "")
+m5mqtt = M5mqtt('subscriber', 'io.adafruit.com', 1883, 'WeatherMon', '', 300)
 m5mqtt.subscribe(str('WeatherMon/feeds/weathermonfeed'), fetch_data)
 m5mqtt.start()
 
@@ -350,7 +351,7 @@ def refresh_major():
     local_temp = int(weather_dict['temperature'])
     local_pressure = int(float(weather_dict['pressure']))
     g_temp.set_value(int(local_temp))
-    g_pres.set_value(int(altu.hPa_to_kPa(local_pressure)))
+    g_pres.set_value(int(hPa_to_kPa(local_pressure)))
     temp_val.set_text(str(local_temp) + units)
     temp_disc.set_text(str(weather_dict['description']))
     temp_pres.set_text(str(local_pressure) + ' hPa')

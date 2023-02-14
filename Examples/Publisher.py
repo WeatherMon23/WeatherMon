@@ -7,6 +7,7 @@ from ALTwidgets import *
 from m5mqtt import M5mqtt
 import lvgl as lv
 import unit
+import ujson
 
 # ------------------------------------------------- #
 # -------------------- GLOBALS -------------------- #
@@ -45,7 +46,8 @@ pres_reads = [(0x00ff00, pres_list)]
 
 # ------------------------------------------------- #
 # -------------------- MQTT -------------------- #
-m5mqtt = M5mqtt('publisher', 'io.adafruit.com', 1883, 'WeatherMon', 'aio_WUlT84UzNuxDaTyvMHPtrMfuFxEu', 300)
+connect_wifi('', '')
+m5mqtt = M5mqtt('publisher', 'io.adafruit.com', 1883, 'WeatherMon', '', 300)
 m5mqtt.start()
 
 # ------------------------------------------------- #
@@ -103,7 +105,11 @@ def refresh_handler(source,evt):
         print(str('Readings: Temp = ' + str(rounded_temp) + ', Pressure = ' + str(rounded_pres) + 'hPa'))
         temp_l.set_text(str('BPS Temperature: ' + str(rounded_temp) + ' ' + units))
         pres_l.set_text(str('BPS Pressure: ' + str(rounded_pres) + ' ' + 'hPa'))
-        m5mqtt.publish(str('WeatherMon/feeds/weathermonfeed'), str(str(rounded_temp) + ',' + str(rounded_pres)), 1)
+        json_data = {}
+        json_data['temperature'] = rounded_temp
+        json_data['pressure'] = rounded_pres
+        json_data = ujson.dumps(json_data)
+        m5mqtt.publish(str('WeatherMon/feeds/weathermonfeed'), json_data, 1)
         reset_charts(rounded_temp, rounded_pres)
         
 
@@ -290,7 +296,6 @@ def refresh_colors(index):
     t.set_color(dark_bg_color)
     t.set_text_color(font_color)
 
-connect_wifi('ICST', 'arduino123')
 def refresh_minor():
     global time_date
     print('Refresh Minor Underway')
@@ -309,3 +314,5 @@ while True:
     stopper = (stopper + 60) % 1800
     wait(60)
 # ------------------------------------------------- #
+
+
