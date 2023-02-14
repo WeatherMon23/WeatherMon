@@ -35,7 +35,9 @@ class Title():
 
     Methods
     -------
-    set_height()
+    get_height()
+    set_color()
+    set_text_color()
     clear_title()
     delete()
     set_text()
@@ -112,6 +114,10 @@ class Title():
             The color of the status bar. (default is 0x000000 (black))
         """
         self.height=26
+        self.green_wifi_path = "/flash/icons/wifi_green.png"
+        self.red_wifi_path = "/flash/icons/wifi_red.png"
+        self.green_cloud_path = "/flash/icons/cloud_green.png"
+        self.red_cloud_path = "/flash/icons/cloud_red.png"
         self.line = alte.Container(x=0, y=0, height=self.height, width=LV_HOR_RES, color=color, radius=0)
         self.left_label = alte.Label(self.line, x=6, y=5, text=text, text_color=text_color)
         self.battery_label = alte.Label(self.line, x=265, y=5, text=self._calc_battery_per(), text_color=text_color)
@@ -203,9 +209,9 @@ class Title():
 
         """
         if self.wifi_icon is None:
-            self.wifi_icon = alte.Image(self.line, x=241, y=5, src='/flash/icons/wifi_green.png')
+            self.wifi_icon = alte.Image(self.line, x=241, y=5, src=self.green_wifi_path)
         else:
-            self.wifi_icon.set_src("/flash/icons/wifi_green.png")
+            self.wifi_icon.set_src(self.green_wifi_path)
         self._update_positions()
 
     def show_red_wifi(self):
@@ -218,9 +224,9 @@ class Title():
 
         """
         if self.wifi_icon is None:
-            self.wifi_icon = alte.Image(self.line, x=241, y=5, src='/flash/icons/wifi_red.png')
+            self.wifi_icon = alte.Image(self.line, x=241, y=5, src=self.red_wifi_path)
         else:
-            self.wifi_icon.set_src("/flash/icons/wifi_red.png")
+            self.wifi_icon.set_src(self.red_wifi_path)
         self._update_positions()
 
     def remove_wifi(self):
@@ -242,9 +248,9 @@ class Title():
 
         """
         if self.cloud_icon is None:
-            self.cloud_icon = alte.Image(self.line, x=215, y=7, src='/flash/icons/cloud_green.png')
+            self.cloud_icon = alte.Image(self.line, x=215, y=7, src=self.green_cloud_path)
         else:
-            self.cloud_icon.set_src("/flash/icons/cloud_green.png")
+            self.cloud_icon.set_src(self.green_cloud_path)
         self._update_positions()
 
     def show_red_cloud(self):
@@ -257,9 +263,9 @@ class Title():
 
         """
         if self.cloud_icon is None:
-            self.cloud_icon = alte.Image(self.line, x=215, y=7, src='/flash/icons/cloud_red.png')
+            self.cloud_icon = alte.Image(self.line, x=215, y=7, src=self.red_cloud_path)
         else:
-            self.cloud_icon.set_src("/flash/icons/cloud_red.png")
+            self.cloud_icon.set_src(self.red_cloud_path)
         self._update_positions()
 
     def remove_cloud(self):
