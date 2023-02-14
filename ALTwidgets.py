@@ -657,7 +657,7 @@ class BrightnessSlider(alte.Slider):
         brightness = self._compute_relative_br(value)
         power.setLCDBrightness(brightness)
 
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, width=200, color=_DEFAULT_THEME_COLOR):
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, width=200, color=_DEFAULT_THEME_COLOR, show_label=False):
         """
         Parameters
         ----------
@@ -673,7 +673,7 @@ class BrightnessSlider(alte.Slider):
             The slider's main color (Default is black).
 
         """
-        super().__init__(parent=parent, x=x, y=y, width=width, min_value=0, max_value=100, color=color)
+        super().__init__(parent=parent, x=x, y=y, width=width, min_value=0, max_value=100, color=color, show_label=show_label)
         self.set_event_cb(self._event_handler)
         self.set_value(self.get_max_value())
 

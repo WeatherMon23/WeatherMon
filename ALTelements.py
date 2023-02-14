@@ -319,7 +319,7 @@ class Slider(lv.slider):
             self._slider_label.set_text(str(self.get_value()))
 
     def __init__(self, parent=lv.scr_act(), x=0, y=0, width=150, min_value=0, max_value=100,
-                 color=_DEFAULT_THEME_COLOR):
+                 color=_DEFAULT_THEME_COLOR, show_label=True):
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_width(width)
@@ -345,6 +345,18 @@ class Slider(lv.slider):
         self._slider_label.set_auto_realign(True)
         self._slider_label.align(self, lv.ALIGN.OUT_BOTTOM_MID, 0, 10)
         self.set_event_cb(self._event_handler)
+        
+        if show_label:
+            self._slider_label.set_hidden(False)
+        else:
+            self._slider_label.set_hidden(True)
+        
+    def set_value(self, value):
+        super().set_value(value, lv.ANIM.ON)
+        self._slider_label.set_text(str(value))
+        
+    def set_label_hidden(self, hide):
+        self._slider_label.set_hidden(hide)
 
     # func() returns an integer between min_value and max_value (including) to be represented in the slider
     def d_refresh(self, func=None, *args):
@@ -418,14 +430,6 @@ class Chart(lv.chart):
             self._series.append(tmp_ser)
         self.refresh()
 
-    def set_points(self, input_vector):
-        for series in self._series:
-            self.clear_series(series)
-        self._series = list()
-        for color, points in input_vector:
-            tmp_ser = self.add_series(lv.color_hex(color))
-            super().set_points(tmp_ser, points)
-        self.refresh()
     # func() returns data in the following format: `[(0xff0000, [point1, point2, point3]), (0x00ff00, [point1, point2, point3])]` to draw a new series inside the chart
     def d_refresh(self, func=None, *args):
         if not func:
@@ -512,5 +516,28 @@ class Container(lv.cont):
         style_main.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(color))
         self.add_style(self.PART.MAIN, style_main)
 
+    def d_refresh(self, func=None, *args):
+        return
+    
+class Page(lv.page):
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, height=150, width=100, color=_DEFAULT_THEME_COLOR,
+                 radius=_DEFAULT_RADIUS):
+        super().__init__(parent)
+        self.set_pos(x, y)
+        self.set_size(width, height)
+
+        style_main = lv.style_t()
+        style_main.init()
+        darker_color = lv.color_t.color_darken(lv.color_hex(color), 30)
+        style_main.set_border_color(lv.STATE.DEFAULT, darker_color)
+        style_main.set_border_width(lv.STATE.DEFAULT, 0)
+        style_main.set_radius(lv.STATE.DEFAULT, radius)
+        style_main.set_bg_color(lv.STATE.DEFAULT, lv.color_hex(color))
+        style_main.set_pad_all(lv.STATE.DEFAULT, 0)
+        style_main.set_pad_bottom(lv.STATE.DEFAULT, 5)
+        self.add_style(self.PART.BG, style_main)
+        
+        self.set_scrollbar_mode(lv.SCROLLBAR_MODE.DRAG)
+        
     def d_refresh(self, func=None, *args):
         return
