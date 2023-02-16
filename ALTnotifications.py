@@ -235,8 +235,7 @@ class TwilioWhatsApp:
                                                                                         to_number=to_number.replace('+',
                                                                                                                     '%2B'),
                                                                                         from_number=self.twilio_from_number.replace(
-                                                                                            '+',
-                                                                                            '%2B'))
+                                                                                            '+', '%2B'))
         try:
             response = urequests.post(
                 'https://api.twilio.com/2010-04-01/Accounts/' + self.twilio_account_sid + '/Messages.json', data=data,

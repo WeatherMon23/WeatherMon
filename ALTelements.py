@@ -21,7 +21,7 @@ Fonts:
 - lv.font_montserrat_48
 - lv.font_PHT_unicode_24
 '''
-_DEFAULT_IMG = '/flash/icons/default.png'
+_DEFAULT_IMG = '/flash/Icons/default.png'
 
 
 class Image(lv.img):
@@ -48,7 +48,7 @@ class Image(lv.img):
         try:
             self._set_src_aux(_DEFAULT_IMG)
         except OSError as e:
-            raise OSError(__name__ + ': ' + str(e) + '\n default.png is missing from the icons folder!')
+            raise OSError(__name__ + ': ' + str(e) + '\n default.png is missing from the Icons folder!')
 
     def __init__(self, parent=lv.scr_act(), x=0, y=0, src=_DEFAULT_IMG):
         super().__init__(parent)
@@ -318,8 +318,8 @@ class Slider(lv.slider):
         if evt == lv.EVENT.VALUE_CHANGED:
             self._slider_label.set_text(str(self.get_value()))
 
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, width=150, min_value=0, max_value=100,
-                 color=_DEFAULT_THEME_COLOR, show_label=True):
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, width=150, min_value=0, max_value=100, color=_DEFAULT_THEME_COLOR,
+                 show_label=True):
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_width(width)
@@ -345,16 +345,16 @@ class Slider(lv.slider):
         self._slider_label.set_auto_realign(True)
         self._slider_label.align(self, lv.ALIGN.OUT_BOTTOM_MID, 0, 10)
         self.set_event_cb(self._event_handler)
-        
+
         if show_label:
             self._slider_label.set_hidden(False)
         else:
             self._slider_label.set_hidden(True)
-        
+
     def set_value(self, value):
         super().set_value(value, lv.ANIM.ON)
         self._slider_label.set_text(str(value))
-        
+
     def set_label_hidden(self, hide):
         self._slider_label.set_hidden(hide)
 
@@ -453,7 +453,7 @@ class Gauge(lv.gauge):
         self.set_needle_count(1, [lv.color_hex(gauge_color)])
         super().set_value(0, initial_value)
         self.set_range(min_value, max_value)
-        super().set_critical_value(max_value - round((max_value-min_value)/5))
+        super().set_critical_value(max_value - round((max_value - min_value) / 5))
 
         style_bg = lv.style_t()
         style_bg.init()
@@ -463,9 +463,9 @@ class Gauge(lv.gauge):
     def set_value(self, value):
         super().set_value(0, value)
 
-    def set_critical_value(self, value = None):
+    def set_critical_value(self, value=None):
         if value == None:
-            super().set_critical_value(self.get_max_value() - round((self.get_max_value()-self.get_min_value())/5))
+            super().set_critical_value(self.get_max_value() - round((self.get_max_value() - self.get_min_value()) / 5))
         else:
             super().set_critical_value(value)
 
@@ -518,7 +518,8 @@ class Container(lv.cont):
 
     def d_refresh(self, func=None, *args):
         return
-    
+
+
 class Page(lv.page):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, height=150, width=100, color=_DEFAULT_THEME_COLOR,
                  radius=_DEFAULT_RADIUS):
@@ -536,8 +537,8 @@ class Page(lv.page):
         style_main.set_pad_all(lv.STATE.DEFAULT, 0)
         style_main.set_pad_bottom(lv.STATE.DEFAULT, 5)
         self.add_style(self.PART.BG, style_main)
-        
+
         self.set_scrollbar_mode(lv.SCROLLBAR_MODE.DRAG)
-        
+
     def d_refresh(self, func=None, *args):
         return

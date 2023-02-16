@@ -113,11 +113,11 @@ class Title():
         color : hex int
             The color of the status bar. (default is 0x000000 (black))
         """
-        self.height=26
-        self.green_wifi_path = "/flash/icons/wifi_green.png"
-        self.red_wifi_path = "/flash/icons/wifi_red.png"
-        self.green_cloud_path = "/flash/icons/cloud_green.png"
-        self.red_cloud_path = "/flash/icons/cloud_red.png"
+        self.height = 26
+        self.green_wifi_path = "/flash/Icons/wifi_green.png"
+        self.red_wifi_path = "/flash/Icons/wifi_red.png"
+        self.green_cloud_path = "/flash/Icons/cloud_green.png"
+        self.red_cloud_path = "/flash/Icons/cloud_red.png"
         self.line = alte.Container(x=0, y=0, height=self.height, width=LV_HOR_RES, color=color, radius=0)
         self.left_label = alte.Label(self.line, x=6, y=5, text=text, text_color=text_color)
         self.battery_label = alte.Label(self.line, x=265, y=5, text=self._calc_battery_per(), text_color=text_color)
@@ -146,7 +146,8 @@ class Title():
 
         """
         self.left_label.set_style_local_text_color(self.left_label.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(color))
-        self.battery_label.set_style_local_text_color(self.battery_label.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(color))
+        self.battery_label.set_style_local_text_color(self.battery_label.PART.MAIN, lv.STATE.DEFAULT,
+                                                      lv.color_hex(color))
 
     def clear_title(self):
         """
@@ -205,7 +206,7 @@ class Title():
 
         Assumes
         --------
-        flash/icons/wifi_green.png exists.
+        flash/Icons/wifi_green.png exists.
 
         """
         if self.wifi_icon is None:
@@ -220,7 +221,7 @@ class Title():
 
         Assumes
         --------
-        flash/icons/wifi_red.png exists.
+        flash/Icons/wifi_red.png exists.
 
         """
         if self.wifi_icon is None:
@@ -244,7 +245,7 @@ class Title():
 
         Assumes
         --------
-        flash/icons/wifi_cloud.png exists.
+        flash/Icons/wifi_cloud.png exists.
 
         """
         if self.cloud_icon is None:
@@ -259,7 +260,7 @@ class Title():
 
         Assumes
         --------
-        flash/icons/cloud_red.png exists.
+        flash/Icons/cloud_red.png exists.
 
         """
         if self.cloud_icon is None:
@@ -307,6 +308,7 @@ class FadingButton(alte.Button):
     set_width()
     set_height()
     """
+
     def _event_handler(self, source, evt):
         """
         Event callback function.
@@ -539,7 +541,8 @@ class Alert(_DialogBase):
                 self.close_func(*self.args)
             obj.start_auto_close(0)
 
-    def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title='', title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF, close_func=None, *args):
+    def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title='', title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF,
+                 close_func=None, *args):
         """
         Parameters
         ----------
@@ -561,6 +564,7 @@ class Alert(_DialogBase):
         self.args = args
         if close_func != None:
             super().set_evt_cb_aux(self._mbox_event_cb_child)
+
 
 class Confirmation(_DialogBase):
     """
@@ -586,8 +590,8 @@ class Confirmation(_DialogBase):
                 self.confirm_func(*self.args)
             obj.start_auto_close(0)
 
-    def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title='',
-                 title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF, confirm_func=None, *args):
+    def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title='', title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF,
+                 confirm_func=None, *args):
         """
         Parameters
         ----------
@@ -612,14 +616,18 @@ class Confirmation(_DialogBase):
         if confirm_func != None:
             super().set_evt_cb_aux(self._mbox_event_cb_child)
 
+
 MAX_BR = 100
 MIN_BR = 20
+
+
 class BrightnessSlider(alte.Slider):
     """
     A class that implements a brightness slider.
     A slider with label under, changes the brightness relative to MAX_BR and MIN_BR
 
     """
+
     def _compute_relative_br(self, value):
         """
         A function that commputes the relative brightness.
@@ -647,7 +655,7 @@ class BrightnessSlider(alte.Slider):
         if evt == lv.EVENT.VALUE_CHANGED:
             brightness = self._compute_relative_br(self.get_value())
             power.setLCDBrightness(brightness)
-    
+
     def set_value(self, value):
         """
         Sets the slider's label value and screen brightness.
@@ -673,9 +681,11 @@ class BrightnessSlider(alte.Slider):
             The slider's main color (Default is black).
 
         """
-        super().__init__(parent=parent, x=x, y=y, width=width, min_value=0, max_value=100, color=color, show_label=show_label)
+        super().__init__(parent=parent, x=x, y=y, width=width, min_value=0, max_value=100, color=color,
+                         show_label=show_label)
         self.set_event_cb(self._event_handler)
         self.set_value(self.get_max_value())
+
 
 class _Widget(alte.Container):
     def _gl_delete_widget(self, board, widget):
@@ -685,8 +695,7 @@ class _Widget(alte.Container):
         if event == lv.EVENT.LONG_PRESSED and not self.is_place_holder:
             # Delete widget from main board
             conf = Confirmation('Remove Widget?', _DEFAULT_TEXT_COLOR, '', _DEFAULT_TEXT_COLOR, 0xFFFFFF,
-                                self._gl_delete_widget,
-                                self._board, self)
+                                self._gl_delete_widget, self._board, self)
 
     def __init__(self, board, height, width, row, col, color, is_place_holder, parent=lv.scr_act()):
         height_in_pixels = board.block_size * height + (height - 1) * board.split_size

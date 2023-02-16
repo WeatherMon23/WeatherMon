@@ -22,8 +22,8 @@ def _get_month(month):
     : str
         3 letters describing a month if 'month' is between 1-12 and None otherwise.
     """
-    dictionary = {1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun',
-                  7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'}
+    dictionary = {1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct',
+                  11: 'Nov', 12: 'Dec'}
     return dictionary.get(month, None)
 
 
@@ -87,6 +87,7 @@ def fetch_date_time(timezone=3, host='time.google.com'):
 import urequests
 import ujson
 
+
 def C_to_F(degree):
     """
     Converts temperature degrees in Celsius to Fahrenheit
@@ -103,6 +104,7 @@ def C_to_F(degree):
     """
     return float(degree) * 1.8 + 35
 
+
 def F_to_C(degree):
     """
     Converts temperature degrees in Fahrenheit to Celsius
@@ -118,6 +120,7 @@ def F_to_C(degree):
         The degree in Celsius.
     """
     return (float(degree) - 35) / 1.8
+
 
 def hPa_to_kPa(degree):
     """
@@ -137,6 +140,8 @@ def hPa_to_kPa(degree):
 
 
 """ WEATHER FROM API """
+
+
 # Fetches weather from: https://openweathermap.org
 
 def _get_curr_ip():
@@ -246,8 +251,11 @@ def _get_weather_json_from_api(apikey, units_string):
     check_connection()
     latlong = _get_lat_long_from_curr_ip()
     try:
-        req = urequests.get('https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}&units={}&cnt=1'
-                            .format(latlong[0], latlong[1], apikey, units_string)).text
+        req = urequests.get(
+            'https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}&units={}&cnt=1'.format(latlong[0],
+                                                                                                            latlong[1],
+                                                                                                            apikey,
+                                                                                                            units_string)).text
     except Exception as e:
         raise Exception(__name__ + ": Error connecting to https://api.openweathermap.org")
     json_data = ujson.loads((req))
@@ -256,7 +264,8 @@ def _get_weather_json_from_api(apikey, units_string):
         return json_data
     else:
         raise Exception(__name__ + ': Error code ' + str(json_data['cod']) + ': ' + str(json_data['message']))
-    
+
+
 def _fetch_icon_url_from_id(icon_id):
     """
     Parameters
@@ -296,8 +305,8 @@ def fetch_local_weather_from_api(apikey, units):
     try:
         json_data = _get_weather_json_from_api(apikey, units_string)
     except Exception as e:
-        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000', 'temperature': '00',
-                'humidity': '00', 'wind': '00', 'description': 'N/A', 'icon-url': 'icons/error.png', 'error-msg': str(e)}
+        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000', 'temperature': '00', 'humidity': '00', 'wind': '00',
+                'description': 'N/A', 'icon-url': 'Icons/error.png', 'error-msg': str(e)}
     return {'city': json_data["city"]["name"], 'date': str(json_data["list"][0]["dt_txt"]),
             'pressure': str(json_data["list"][0]["main"]["pressure"]),
             'temperature': str(round(json_data["list"][0]["main"]["temp"])),
@@ -308,6 +317,8 @@ def fetch_local_weather_from_api(apikey, units):
 
 
 """ WEATHER FROM wttr.in """
+
+
 # Fetches the weather from : https://wttr.in/{city}
 
 def _get_weather_json_from_web(city):
@@ -375,7 +386,7 @@ def fetch_local_weather_from_web(units):
     
     Assumes:
     -------
-    /flash/icons/no_weather.png exists
+    /flash/Icons/no_weather.png exists
     """
     temp_id = _get_temp_id(units)
     if temp_id is None:
@@ -385,14 +396,12 @@ def fetch_local_weather_from_web(units):
         city = _get_city_from_curr_ip()
         json_data = _get_weather_json_from_web(city)
     except Exception as e:
-        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000', 'temperature': '00',
-                'humidity': '00', 'wind': '00', 'description': 'N/A', 'icon-url': 'icons/error.png',
-                'uv-index': '0', 'error-msg': str(e)}
+        return {'city': 'N/A', 'date': 'N/A', 'pressure': '0000', 'temperature': '00', 'humidity': '00', 'wind': '00',
+                'description': 'N/A', 'icon-url': 'Icons/error.png', 'uv-index': '0', 'error-msg': str(e)}
     weather = json_data['weather'][0]
     json_data = json_data['current_condition'][0]
-    return {'city': city, 'date': json_data["localObsDateTime"],
-            'pressure': str(json_data["pressure"]), 'temperature': str(json_data[temp_id]),
-            'humidity': str(json_data["humidity"]), 'wind': str(round(float(json_data["windspeedKmph"]) * 0.277778, 2)),
+    return {'city': city, 'date': json_data["localObsDateTime"], 'pressure': str(json_data["pressure"]),
+            'temperature': str(json_data[temp_id]), 'humidity': str(json_data["humidity"]),
+            'wind': str(round(float(json_data["windspeedKmph"]) * 0.277778, 2)),
             'description': uti.capitalize_first_letter(str(json_data["weatherDesc"][0]["value"])),
-            'icon-url': '/flash/icons/globe.png',
-            'uv-index': str(weather["uvIndex"]), 'error-msg': ''}
+            'icon-url': '/flash/Icons/globe.png', 'uv-index': str(weather["uvIndex"]), 'error-msg': ''}

@@ -39,4 +39,3 @@ def check_connection():
     """
     if not wifiCfg.is_connected():
         raise Exception(__name__ + ": No internet connection.")
-  
