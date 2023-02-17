@@ -5,7 +5,8 @@ import ALTelements as alte
 
 LV_HOR_RES = 320
 LV_VER_RES = 240
-
+MAX_BR = 100
+MIN_BR = 20
 _DEFAULT_TEXT_COLOR = 0x000000
 _DEFAULT_THEME_COLOR = 0x228B22
 _DEFAULT_DISABLED_COLOR = 0xf2f2f2
@@ -617,10 +618,6 @@ class Confirmation(_DialogBase):
             super().set_evt_cb_aux(self._mbox_event_cb_child)
 
 
-MAX_BR = 100
-MIN_BR = 20
-
-
 class BrightnessSlider(alte.Slider):
     """
     A class that implements a brightness slider.
@@ -689,6 +686,16 @@ class BrightnessSlider(alte.Slider):
 
 class _Widget(alte.Container):
     def _gl_delete_widget(self, board, widget):
+        """
+        Deleted a widget from a given board
+
+        Parameters
+        ----------
+        board : Board
+            Parent board of the widget
+        widget : Widget
+            Widget to delete
+        """
         board.delete_widget(widget)
 
     def _event_handler(self, source, event):
@@ -698,6 +705,26 @@ class _Widget(alte.Container):
                                 self._gl_delete_widget, self._board, self)
 
     def __init__(self, board, height, width, row, col, color, is_place_holder, parent=lv.scr_act()):
+        """
+        Parameters
+        ----------
+        board : Board
+            Parent board to draw the widget inside
+        height : int
+            Number of rows to be occupied by the widget
+        width : int
+            Number of columns to be occupied by the widget
+        row : int
+            Top row from which to draw the widget
+        col : int
+            Left row from which to draw the widget
+        color : int
+            Background color of the widget
+        is_place_holder : bool
+            Bool variable to indicate whether this is a placeholder block or not
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        """
         height_in_pixels = board.block_size * height + (height - 1) * board.split_size
         width_in_pixels = board.block_size * width + (width - 1) * board.split_size
         super().__init__(parent=parent, height=height_in_pixels, width=width_in_pixels, color=color)
@@ -724,6 +751,9 @@ class _Widget(alte.Container):
 
 class Board:
     def _init_board(self):
+        """
+        Initializes the board with small blocks
+        """
         for row in range(self.rows_num):
             for col in range(self.cols_num):
                 # Filling the board with place-holders
@@ -734,6 +764,9 @@ class Board:
                 self._background_blocks.append(empty_block)
 
     def reset_board(self):
+        """
+        Deletes all colored widgets from current board
+        """
         if self._show_place_holders:
             for background_block in self._background_blocks:
                 background_block.set_hidden(False)
@@ -743,6 +776,26 @@ class Board:
 
     def __init__(self, top_margin=51, block_size=58, split_size=5, rows_num=3, cols_num=5, show_place_holders=True,
                  _default_color=_DEFAULT_DISABLED_COLOR, parent=lv.scr_act()):
+        """
+        Parameters
+        ----------
+        top_margin : int
+            Space from top of screen in pixels (default is 51)
+        block_size : int
+            Height and Width of block in pixels (default is 58)
+        split_size : int
+            Space between blocks in pixels (default is 5)
+        rows_num : int
+            Number of rows inside the board (default is 3)
+        cols_num : int
+        Number of columns inside the board (default is 5)
+        show_place_holders : bool
+            Bool variable to decide whether to hide placeholder or to show them (default is True)
+        _default_color : int
+            Color of placeholder blocks (default is _DEFAULT_DISABLED_COLOR)
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        """
         self.parent = parent
         self.top_margin = top_margin
         self.block_size = block_size
@@ -756,6 +809,28 @@ class Board:
         self._init_board()
 
     def draw_widget(self, height, width, row, col, color):
+        """
+        Draws widget inside current board
+
+        Parameters
+        ----------
+        height : int
+            Number of rows to be occupied by the widget
+        width : int
+            Number of columns to be occupied by the widget
+        row : int
+            Top row from which to draw the widget
+        col : int
+            Left row from which to draw the widget
+        color : int
+            Background color of the widget
+
+        Returns
+        -------
+        Widget
+            The created widget
+
+        """
         # Checking for collision
         for i, j in [(i, j) for i in range(height) for j in range(width)]:
             if any([row + i, col + j] in colored_block.reserved_blocks for colored_block in self._colored_blocks):
@@ -770,12 +845,23 @@ class Board:
         return widget
 
     def delete_widget(self, widget):
+        """
+        Deletes widget from current board
+
+        Parameters
+        ----------
+        widget : Widget
+            The widget to be deleted from current board
+        """
         if self._show_place_holders:
             for i, j in widget.reserved_blocks:
                 self._background_blocks[i * self.cols_num + j].set_hidden(False)
         widget.delete()
 
     def delete(self):
+        """
+        Deletes all widgets from current board (including placeholders)
+        """
         for background_block in self._background_blocks:
             background_block.delete()
         for colored_block in self._colored_blocks:
@@ -784,6 +870,14 @@ class Board:
         self._colored_blocks = list()
 
     def set_hidden(self, hidden):
+        """
+        Shows / Hides all blocks inside a widget
+
+        Parameters
+        ----------
+        hidden : bool
+            Bool variable to decide whether to hide the blocks or to show them
+        """
         for colored_block in self._colored_blocks:
             colored_block.set_hidden(hidden)
 

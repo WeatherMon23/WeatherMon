@@ -1,21 +1,25 @@
 # WeatherMon
 
 [![GitHub Release](https://img.shields.io/github/release/WeatherMon23/WeatherMon)](https://github.com/WeatherMon23/WeatherMon/releases/Latest)
+[![MicroPython](https://img.shields.io/badge/MicroPython-7.11-brightgreen)](https://docs.lvgl.io/7.11/)
+<div id="top" align="center">
 
 This project was created by Ahmad Agbaria, Lareine Atallah, and Thomas Hashem at Technion - Israel Institute of
 Technology, with guidance from [Interdisciplinary Center for Smart Technologies](https://icst.cs.technion.ac.il/).
 
-### Getting Started
+</div>
+
+## Getting Started
 
 1. Setup working environment by following the steps
-   in [Installation Instructions](https://docs.google.com/document/d/1nUOnHGdZ3OWzpR0EWO7GWwUKkHQWSkAC/)
+   in [Installation Instructions](https://docs.google.com/document/d/1nUOnHGdZ3OWzpR0EWO7GWwUKkHQWSkAC/).
 2. Generate [SendGrid](https://docs.sendgrid.com/for-developers/sending-email/api-getting-started)
    and [Twilio](https://www.twilio.com/docs/usage/tutorials/how-to-use-your-free-trial-account) API keys and
-   update [Secrets.json](Secrets.json) accordingly
+   update [Secrets.json](Secrets.json) accordingly.
 3. Build Your first project by
-   reading [Starter Tutorials](https://docs.google.com/document/d/1rzM6ghP-TxwVlcws6WDDN8_cuASt5gPu/)
+   reading [Starter Tutorials](https://docs.google.com/document/d/1rzM6ghP-TxwVlcws6WDDN8_cuASt5gPu/).
 
-### Project Structure
+## Project Structure
 
 - [Assets](Assets) - Assets that were used in this project
     - [Audio](Assets%2FAudio) - Audio files
@@ -36,5 +40,9 @@ Technology, with guidance from [Interdisciplinary Center for Smart Technologies]
 - [ALTwidgets.py](ALTwidgets.py) - Interface for creating complex widgets to be displayed on the screen; each widget can
   combine multiple elements from different interfaces
 - [Secrets.json](Secrets.json) - JSON file to contain API keys and secret data
+r
+<p align="center">
 
-![MicroPython](https://upload.wikimedia.org/wikipedia/commons/4/4e/Micropython-logo.svg "MicroPython")
+<img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Micropython-logo.svg" alt="MicroPython" width=400/>
+
+</p>

@@ -9,7 +9,7 @@ _DEFAULT_RADIUS = 8
 _DEFAULT_ANIME_TIME = 100
 _DEFAULT_FONT = lv.font_montserrat_14
 '''
-Fonts:
+Options for Fonts:
 - lv.font_montserrat_10
 - lv.font_montserrat_14
 - lv.font_montserrat_18
@@ -39,18 +39,41 @@ class Image(lv.img):
         super().set_src(png_img_dsc)
 
     def _set_src_url(self, src):
+        """
+        Sets an image from URL
+
+        Parameters
+        ----------
+        src : string
+            URL to an image
+        """
         response = urequests.get(src)
         image_bytes = response.content
         png_img_dsc = lv.img_dsc_t({'data_size': len(image_bytes), 'data': image_bytes})
         super().set_src(png_img_dsc)
 
     def _set_img_default(self):
+        """
+        Resets to default image
+        """
         try:
             self._set_src_aux(_DEFAULT_IMG)
         except OSError as e:
             raise OSError(__name__ + ': ' + str(e) + '\n default.png is missing from the Icons folder!')
 
     def __init__(self, parent=lv.scr_act(), x=0, y=0, src=_DEFAULT_IMG):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        src : string
+            Path to the image which will be loaded (default is _DEFAULT_IMG)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         if 'http://' in src or 'https://' in src:
@@ -61,6 +84,14 @@ class Image(lv.img):
             self._set_src_aux(src)
 
     def set_src(self, src):
+        """
+        Sets an image
+
+        Parameters
+        ----------
+        src : string
+            Path to an image
+        """
         if 'http://' in src or 'https://' in src:
             self._set_src_url(src)
         else:
@@ -76,26 +107,44 @@ class Image(lv.img):
 
 class Label(lv.label):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Label', text_color=_DEFAULT_TEXT_COLOR, font=_DEFAULT_FONT,
-                 width=0, long_mode=lv.label.LONG.EXPAND, alignment=lv.label.ALIGN.CENTER):
+                 width=50, long_mode=lv.label.LONG.EXPAND, alignment=lv.label.ALIGN.CENTER):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        text : string
+            Text to be displayed inside the element (default is 'Label')
+        text_color : int
+            Color of the text inside the element (default is _DEFAULT_TEXT_COLOR)
+        font : lv
+            Font to be applied on the text inside the element (default is _DEFAULT_FONT)
+        width : int
+            Width of the element in pixels (default is 50)
+        long_mode : lv.label.LONG
+            Policy to manipulate long text (default is lv.label.LONG.EXPAND). The options are:
+            lv.label.LONG.EXPAND - Expand the object size to the text size
+            lv.label.LONG.BREAK - Keep the object width, break (wrap) the too long lines and expand the object height
+            lv.label.LONG.DOT - Keep the object size, break the text and write dots in the last line (not supported when using lv_label_set_text_static)
+            lv.label.LONG.SROLL - Keep the size and scroll the label back and forth
+            lv.label.LONG.SROLL_CIRC - Keep the size and scroll the label circularly
+            lv.label.LONG.CROP - Keep the size and crop the text out of it
+        alignment : lv.label.ALIGN
+            The text alignment (default is lv.label.ALIGN.CENTER). The options are:
+            lv.label.ALIGN.LEFT
+            lv.label.ALIGN.RIGHT
+            lv.label.ALIGN.CENTER
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_text(text)
         self.set_long_mode(long_mode)
-        '''
-        lv.label.LONG.EXPAND - Expand the object size to the text size
-        lv.label.LONG.BREAK - Keep the object width, break (wrap) the too long lines and expand the object height
-        lv.label.LONG.DOT - Keep the object size, break the text and write dots in the last line (not supported when using lv_label_set_text_static)
-        lv.label.LONG.SROLL - Keep the size and scroll the label back and forth
-        lv.label.LONG.SROLL_CIRC - Keep the size and scroll the label circularly
-        lv.label.LONG.CROP - Keep the size and crop the text out of it
-        '''
         self.set_width(width)
         self.set_align(alignment)
-        '''
-        lv.label.ALIGN.LEFT
-        lv.label.ALIGN.RIGHT
-        lv.label.ALIGN.CENTER
-        '''
         style_main = lv.style_t()
         style_main.init()
         style_main.set_text_font(lv.STATE.DEFAULT, font)
@@ -113,17 +162,33 @@ class Label(lv.label):
 class Checkbox(lv.checkbox):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Checkbox', text_color=_DEFAULT_TEXT_COLOR,
                  color=_DEFAULT_THEME_COLOR, state=lv.btn.STATE.RELEASED):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        text : string
+            Text to be displayed inside the element (default is 'Checkbox')
+        text_color : int
+            Color of the text inside the element (default is _DEFAULT_TEXT_COLOR)
+        color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        state : lv.btn.STATE
+            The state of the element (default is lv.btn.STATE.RELEASED). The options are:
+            lv.btn.STATE.RELEASED
+            lv.btn.STATE.PRESSED
+            lv.btn.STATE.CHECKED_RELEASED
+            lv.btn.STATE.CHECKED_PRESSED
+            lv.btn.STATE.DISABLED
+            lv.btn.STATE.CHECKED_DISABLED
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_state(state)
-        '''
-        lv.btn.STATE.RELEASED
-        lv.btn.STATE.PRESSED
-        lv.btn.STATE.CHECKED_RELEASED
-        lv.btn.STATE.CHECKED_PRESSED
-        lv.btn.STATE.DISABLED
-        lv.btn.STATE.CHECKED_DISABLED
-        '''
         self.set_text(text)
 
         style_bullet = lv.style_t()
@@ -151,6 +216,24 @@ class Checkbox(lv.checkbox):
 class Line(lv.line):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, length=50, is_vertical=False, width=1,
                  color=_DEFAULT_THEME_COLOR):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        length : int
+            Length of the element in pixels (default is 50)
+        is_vertical : bool
+            Bool variable to decide whether to draw vertical or horizontal line (default is False)
+        width : int
+            Width of the element in pixels (default is 1)
+        color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         start_point, end_point = {"x": 0, "y": 0}, {"x": 0, "y": length}
@@ -172,6 +255,31 @@ class Line(lv.line):
 class Table(lv.table):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, data=[], text_color=_DEFAULT_TEXT_COLOR, font=_DEFAULT_FONT,
                  alignment=lv.label.ALIGN.CENTER, num_of_cols=0, width=150):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        data : vector
+            Vector of data to be displayed inside the element (default is [])
+        text_color : int
+            Color of the text inside the element (default is _DEFAULT_TEXT_COLOR)
+        font : lv
+            Font to be applied on the text inside the element (default is _DEFAULT_FONT)
+        alignment : lv.label.ALIGN
+            The text alignment in cells (default is lv.label.ALIGN.CENTER). The options are:
+            lv.label.ALIGN.LEFT
+            lv.label.ALIGN.RIGHT
+            lv.label.ALIGN.CENTER
+        num_of_cols : int
+            Number of columns (default is 0)
+        width : int
+            Width of the element in pixels (default is 150)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self._num_of_cols = num_of_cols
@@ -184,11 +292,6 @@ class Table(lv.table):
                 else:
                     self.set_cell_type(i, j, 2)
                 self.set_cell_align(i, j, alignment)
-                '''
-                lv.label.ALIGN.LEFT
-                lv.label.ALIGN.RIGHT
-                lv.label.ALIGN.CENTER
-                '''
                 self.set_cell_value(i, j, data[i * num_of_cols + j])
 
         style_bg = lv.style_t()
@@ -210,6 +313,20 @@ class Table(lv.table):
 
 class Switch(lv.switch):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, color=_DEFAULT_THEME_COLOR, unchecked_bg=None):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        unchecked_bg : int
+            Color of the background when the element is unchecked (default is None)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_anim_time(_DEFAULT_ANIME_TIME)
@@ -240,6 +357,18 @@ class Switch(lv.switch):
 
 class Cpicker(lv.cpicker):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, length=150):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        length : int
+            Height and Width of the element (default is 150)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_size(length, length)  # self.set_type(lv.cpicker.TYPE.RECT) - Changing Type crashes the device
@@ -254,6 +383,22 @@ class Cpicker(lv.cpicker):
 
 class Dropdown(lv.dropdown):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, width=100, options=[], color=_DEFAULT_THEME_COLOR):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        width : int
+            Width of the element in pixels (default is 100)
+        options : vector
+            Vector of data to be displayed inside element (default is [])
+        color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_width(width)
@@ -284,14 +429,28 @@ class Dropdown(lv.dropdown):
 class Roller(lv.roller):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, options=[], mode=lv.roller.MODE.INFINITE,
                  color=_DEFAULT_THEME_COLOR):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        options : vector
+            Vector of data to be displayed inside element (default is [])
+        mode : lv.roller.MODE
+            Roller mode (default is lv.roller.MODE.INFINITE). The options are:
+            lv.roller.MODE.NORMAL - Roller ends at the end of the options
+            lv.roller.MODE.INFINITE - Roller can be scrolled forever
+        color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self._mode = mode
         self.set_options("\n".join(options), mode)
-        '''
-        lv.roller.MODE.NORMAL - Roller ends at the end of the options
-        lv.roller.MODE.INFINITE - Roller can be scrolled forever
-        '''
         self.set_visible_row_count(4)
 
         style_bg = lv.style_t()
@@ -320,6 +479,26 @@ class Slider(lv.slider):
 
     def __init__(self, parent=lv.scr_act(), x=0, y=0, width=150, min_value=0, max_value=100, color=_DEFAULT_THEME_COLOR,
                  show_label=True):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        width : int
+            Width of the element in pixels (default is 150)
+        min_value : int
+            Minimum value the element can display (default is 0)
+        max_value : int
+            Maximum value the element can display (default is 100)
+        color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        show_label : bool
+            Bool variable to decide whether to show the label or not (default is True)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_width(width)
@@ -352,10 +531,26 @@ class Slider(lv.slider):
             self._slider_label.set_hidden(True)
 
     def set_value(self, value):
+        """
+        Updates displayed value
+
+        Parameters
+        ----------
+        value : int
+            A value between min_value and max_value to be displayed by the element
+        """
         super().set_value(value, lv.ANIM.ON)
         self._slider_label.set_text(str(value))
 
     def set_label_hidden(self, hide):
+        """
+        Shows / Hides the label
+
+        Parameters
+        ----------
+        hide : bool
+            Bool variable to decide whether to show the label or not
+        """
         self._slider_label.set_hidden(hide)
 
     # func() returns an integer between min_value and max_value (including) to be represented in the slider
@@ -370,6 +565,32 @@ class Button(lv.btn):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Button', text_color=_DEFAULT_TEXT_COLOR,
                  color=_DEFAULT_THEME_COLOR, height=50, width=100, is_toggled=False, font=_DEFAULT_FONT,
                  radius=_DEFAULT_RADIUS):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        text : string
+            Text to be displayed inside the element (default is 'Button')
+        text_color : int
+            Color of the text inside the element (default is _DEFAULT_TEXT_COLOR)
+        color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        height : int
+            Height of the element in pixels (default is 50)
+        width : int
+            Width of the element in pixels (default is 100)
+        is_toggled : bool
+            Bool variable to decide whether to configure the button as toggle button or not (default is False)
+        font : lv
+            Font to be applied on the text inside the element (default is _DEFAULT_FONT)
+        radius : int
+            Radius of the element (default is _DEFAULT_RADIUS)
+        """
         super().__init__(parent)
         self._o_x = x
         self._o_y = y
@@ -403,16 +624,38 @@ class Button(lv.btn):
 class Chart(lv.chart):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, height=150, width=200, min_val=0, max_val=100, input_vector=[],
                  chart_type=lv.chart.TYPE.COLUMN, is_faded=True):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        height : int
+            Height of the element in pixels (default is 150)
+        width : int
+            Width of the element in pixels (default is 200)
+        min_value : int
+            Minimum value the element can display (default is 0)
+        max_value : int
+            Maximum value the element can display (default is 100)
+        input_vector : vector
+            Vector of data to be displayed inside element (default is [])
+        chart_type : lv.chart.TYPE
+            Data display types (default is lv.chart.TYPE.COLUMN). The following exist:
+            lv.chart.TYPE.NONE - Do not display any data. It can be used to hide the series.
+            lv.chart.TYPE.LINE - Draw lines between the points.
+            lv.chart.TYPE.COLUMN - Draw columns.LV_CHART_TYPE_NONE - Do not display any data. It can be used to hide the series.
+        is_faded : bool
+            Bool variable to decide whether to display a fading effect or not (default is True)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self._series = list()
         self.set_size(width, height)
         self.set_type(chart_type)
-        '''
-        lv.chart.TYPE.NONE - Do not display any data. It can be used to hide the series.
-        lv.chart.TYPE.LINE - Draw lines between the points.
-        lv.chart.TYPE.COLUMN - Draw columns.LV_CHART_TYPE_NONE - Do not display any data. It can be used to hide the series.
-        '''
         style_bg = lv.style_t()
         style_bg.init()
         style_bg.set_border_width(lv.STATE.DEFAULT, 0)
@@ -436,7 +679,7 @@ class Chart(lv.chart):
             return
         new_data = func(*args)
         for series in self._series:
-            self.clear_series(series)
+            self.remove_series(series)
         self._series = list()
         for color, points in new_data:
             tmp_ser = self.add_series(lv.color_hex(color))
@@ -447,6 +690,26 @@ class Chart(lv.chart):
 class Gauge(lv.gauge):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, gauge_color=_DEFAULT_THEME_COLOR, length=150, initial_value=0,
                  min_value=0, max_value=100):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        gauge_color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        length : int
+            Height and Width of the element (default is 150)
+        initial_value : int
+            Initial value to be displayed by the element (default is 0)
+        min_value : int
+            Minimum value the element can display (default is 0)
+        max_value : int
+            Maximum value the element can display (default is 100)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_size(length, length)
@@ -461,9 +724,25 @@ class Gauge(lv.gauge):
         self.add_style(self.PART.MAIN, style_bg)
 
     def set_value(self, value):
+        """
+        Updates displayed value
+
+        Parameters
+        ----------
+        value : int
+            A value between min_value and max_value to be displayed by the element
+        """
         super().set_value(0, value)
 
     def set_critical_value(self, value=None):
+        """
+        Updates critical value range
+
+        Parameters
+        ----------
+        value : int
+            The minimum value to be considered as critical.
+        """
         if value == None:
             super().set_critical_value(self.get_max_value() - round((self.get_max_value() - self.get_min_value()) / 5))
         else:
@@ -480,31 +759,49 @@ class Gauge(lv.gauge):
 class Container(lv.cont):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, height=150, width=100, color=_DEFAULT_THEME_COLOR,
                  layout=lv.LAYOUT.OFF, fit=lv.FIT.NONE, radius=_DEFAULT_RADIUS):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        height : int
+            Height of the element in pixels (default is 150)
+        width : int
+            Width of the element in pixels (default is 100)
+        color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        layout : lv.LAYOUT
+            Layout of the element to automatically order its children (default is lv.LAYOUT.OFF). The possible layout options:
+            lv.LAYOUT.OFF - Do not align the children.
+            lv.LAYOUT.CENTER - Align children to the center in column and keep pad_inner space between them.
+            lv.LAYOUT.COLUMN_LEFT - Align children in a left-justified column. Keep pad_left space on the left, pad_top space on the top and pad_inner space between the children.
+            lv.LAYOUT.COLUMN_MID - Align children in centered column. Keep pad_top space on the top and pad_inner space between the children.
+            lv.LAYOUT.COLUMN_RIGHT - Align children in a right-justified column. Keep pad_right space on the right, pad_top space on the top and pad_inner space between the children.
+            lv.LAYOUT.ROW_TOP - Align children in a top justified row. Keep pad_left space on the left, pad_top space on the top and pad_inner space between the children.
+            lv.LAYOUT.ROW_MID - Align children in centered row. Keep pad_left space on the left and pad_inner space between the children.
+            lv.LAYOUT.ROW_BOTTOM - Align children in a bottom justified row. Keep pad_left space on the left, pad_bottom space on the bottom and pad_inner space between the children.
+            lv.LAYOUT.PRETTY_TOP - Put as many objects as possible in a row (with at least pad_inner space and pad_left/right space on the sides). Divide the space in each line equally between the children. If here are children with different height in a row align their top edge.
+            lv.LAYOUT.PRETTY_MID - Same as lv.LAYOUT.PRETTY_TOP but if here are children with different height in a row align their middle line.
+            lv.LAYOUT.PRETTY_BOTTOM - Same as lv.LAYOUT.PRETTY_TOP but if here are children with different height in a row align their bottom line.
+            lv.LAYOUT.GRID - Similar to lv.LAYOUT.PRETTY but not divide horizontal space equally just let pad_left/right on the edges and pad_inner space between the elements.
+        fit : lv.FIT
+            Fit option to change the size of the element according to its children and/or its parent (default is lv.FIT.NONE). The following options exist:
+            lv.FIT.NONE - Do not change the size automatically.
+            lv.FIT.TIGHT - Shrink-wrap the container around all of its children, while keeping pad_top/bottom/left/right space on the edges.
+            lv.FIT.PARENT - Set the size to the parent's size minus pad_top/bottom/left/right (from the parent's style) space.
+            lv.FIT.MAX - Use lv.FIT.PARENT while smaller than the parent and lv.FIT.TIGHT when larger. It will ensure that the container is, at minimum, the size of its parent.
+        radius : int
+            Radius of the element (default is _DEFAULT_RADIUS)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_auto_realign(False)  # Disable auto realign when the size changes
         self.set_fit(fit)
-        '''
-        lv.FIT.NONE - Do not change the size automatically.
-        lv.FIT.TIGHT - Shrink-wrap the container around all of its children, while keeping pad_top/bottom/left/right space on the edges.
-        lv.FIT.PARENT - Set the size to the parent's size minus pad_top/bottom/left/right (from the parent's style) space.
-        lv.FIT.MAX - Use lv.FIT.PARENT while smaller than the parent and lv.FIT.TIGHT when larger. It will ensure that the container is, at minimum, the size of its parent.
-        '''
         self.set_layout(layout)
-        '''
-        lv.LAYOUT.OFF - Do not align the children.
-        lv.LAYOUT.CENTER - Align children to the center in column and keep pad_inner space between them.
-        lv.LAYOUT.COLUMN_LEFT - Align children in a left-justified column. Keep pad_left space on the left, pad_top space on the top and pad_inner space between the children.
-        lv.LAYOUT.COLUMN_MID - Align children in centered column. Keep pad_top space on the top and pad_inner space between the children.
-        lv.LAYOUT.COLUMN_RIGHT - Align children in a right-justified column. Keep pad_right space on the right, pad_top space on the top and pad_inner space between the children.
-        lv.LAYOUT.ROW_TOP - Align children in a top justified row. Keep pad_left space on the left, pad_top space on the top and pad_inner space between the children.
-        lv.LAYOUT.ROW_MID - Align children in centered row. Keep pad_left space on the left and pad_inner space between the children.
-        lv.LAYOUT.ROW_BOTTOM - Align children in a bottom justified row. Keep pad_left space on the left, pad_bottom space on the bottom and pad_inner space between the children.
-        lv.LAYOUT.PRETTY_TOP - Put as many objects as possible in a row (with at least pad_inner space and pad_left/right space on the sides). Divide the space in each line equally between the children. If here are children with different height in a row align their top edge.
-        lv.LAYOUT.PRETTY_MID - Same as lv.LAYOUT.PRETTY_TOP but if here are children with different height in a row align their middle line.
-        lv.LAYOUT.PRETTY_BOTTOM - Same as lv.LAYOUT.PRETTY_TOP but if here are children with different height in a row align their bottom line.
-        lv.LAYOUT.GRID - Similar to lv.LAYOUT.PRETTY but not divide horizontal space equally just let pad_left/right on the edges and pad_inner space between the elements.
-        '''
         self.set_size(width, height)
 
         style_main = lv.style_t()
@@ -523,6 +820,24 @@ class Container(lv.cont):
 class Page(lv.page):
     def __init__(self, parent=lv.scr_act(), x=0, y=0, height=150, width=100, color=_DEFAULT_THEME_COLOR,
                  radius=_DEFAULT_RADIUS):
+        """
+        Parameters
+        ----------
+        parent : pointer
+            Pointer to a screen to contain the drawn element (default is lv.scr_act())
+        x : int
+            Location on X axis inside the specified screen (default is 0)
+        y : int
+            Location on Y axis inside the specified screen (default is 0)
+        height : int
+            Height of the element in pixels (default is 150)
+        width : int
+            Width of the element in pixels (default is 100)
+        color : int
+            Color of the element (default is _DEFAULT_THEME_COLOR)
+        radius : int
+            Radius of the element (default is _DEFAULT_RADIUS)
+        """
         super().__init__(parent)
         self.set_pos(x, y)
         self.set_size(width, height)

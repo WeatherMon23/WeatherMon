@@ -73,7 +73,7 @@ class GridEmail:
         ----------
         receiver_address : str
             The Email address to receive the verification code
-        code_len : integer
+        code_len : int
             Number of digits in the verification code (default is 8)
 
         Returns
@@ -163,7 +163,7 @@ class TwilioSMS:
         ----------
         to_number : str
             The number to receive the verification code in an SMS
-        code_len : integer
+        code_len : int
             Number of digits in the verification code (default is 8)
 
         Returns
@@ -255,7 +255,7 @@ class TwilioWhatsApp:
         ----------
         to_number : str
             The number to receive the verification code in a WhatsApp message
-        code_len : integer
+        code_len : int
             Number of digits in the verification code (default is 8)
 
         Returns
