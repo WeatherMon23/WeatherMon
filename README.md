@@ -40,7 +40,7 @@ Technology, with guidance from [Interdisciplinary Center for Smart Technologies]
 - [ALTwidgets.py](ALTwidgets.py) - Interface for creating complex widgets to be displayed on the screen; each widget can
   combine multiple elements from different interfaces
 - [Secrets.json](Secrets.json) - JSON file to contain API keys and secret data
-r
+
 <p align="center">
 
 <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Micropython-logo.svg" alt="MicroPython" width=400/>
