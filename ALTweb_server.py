@@ -119,6 +119,10 @@ def get_user_input(SSID, password):
         <input type="text" id="userInput" placeholder="Your input here...">
         <button class="btn" type="submit">Submit</button>
       </form>
+      <div class="datetime">
+      <div class="time" id="currentTime"></div>
+      <div class="date" id="currentDate"></div>
+    </div>
     </div>
     <script>
       function submitInput(event) {
