@@ -38,6 +38,7 @@ Technology, with guidance from [Interdisciplinary Center for Smart Technologies]
 - [ALTnotifications.py](ALTnotifications.py) - Interface to create a notification center to the user
 - [ALTutils.py](ALTutils.py) - Interface which provides some helpful utils
 - [ALTweather.py](ALTweather.py) - Interface that fetches weather and time information from the internet
+- [ALTweb_server.py](ALTweb_server.py) - Infrastructure for custom web server to retrive user input
 - [ALTwidgets.py](ALTwidgets.py) - Interface for creating complex widgets to be displayed on the screen; each widget can
   combine multiple elements from different interfaces
 - [Secrets.json](Secrets.json) - JSON file to contain API keys and secret data
