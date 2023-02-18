@@ -1,7 +1,8 @@
 # WeatherMon
 
 [![GitHub Release](https://img.shields.io/github/release/WeatherMon23/WeatherMon)](https://github.com/WeatherMon23/WeatherMon/releases/Latest)
-[![MicroPython](https://img.shields.io/badge/MicroPython-7.11-brightgreen)](https://docs.lvgl.io/7.11/)
+[![MicroPython](https://img.shields.io/badge/MicroPython-1.12-brightgreen)](https://docs.micropython.org/en/v1.12/)
+[![LVGL](https://img.shields.io/badge/LVGL-7.11-orange)](https://docs.lvgl.io/7.11/)
 <div id="top" align="center">
 
 This project was created by Ahmad Agbaria, Lareine Atallah, and Thomas Hashem at Technion - Israel Institute of

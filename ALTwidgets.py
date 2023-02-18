@@ -701,8 +701,8 @@ class _Widget(alte.Container):
     def _event_handler(self, source, event):
         if event == lv.EVENT.LONG_PRESSED and not self.is_place_holder:
             # Delete widget from main board
-            conf = Confirmation('Remove Widget?', _DEFAULT_TEXT_COLOR, '', _DEFAULT_TEXT_COLOR, 0xFFFFFF,
-                                self._gl_delete_widget, self._board, self)
+            Confirmation('Remove Widget?', _DEFAULT_TEXT_COLOR, '', _DEFAULT_TEXT_COLOR, 0xFFFFFF,
+                         self._gl_delete_widget, self._board, self)
 
     def __init__(self, board, height, width, row, col, color, is_place_holder, parent=lv.scr_act()):
         """
