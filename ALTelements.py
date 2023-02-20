@@ -21,7 +21,7 @@ Options for Fonts:
 - lv.font_montserrat_48
 - lv.font_PHT_unicode_24
 '''
-_DEFAULT_IMG = '/flash/Icons/default.png'
+_DEFAULT_IMG = '/flash/Assets/Icons/default.png'
 
 
 class Image(lv.img):
@@ -679,7 +679,7 @@ class Chart(lv.chart):
             return
         new_data = func(*args)
         for series in self._series:
-            self.remove_series(series)
+            self.clear_series(series)
         self._series = list()
         for color, points in new_data:
             tmp_ser = self.add_series(lv.color_hex(color))

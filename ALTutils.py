@@ -13,7 +13,7 @@ def capitalize_first_letter(s):
     s : str
         The modified sentence.
     """
-    lst = [word[0].upper() + word[1:] for word in input_str = input_str.split()]
+    lst = [word[0].upper() + word[1:] for word in s.split()]
     s = " ".join(lst)
     return s
 

@@ -1,5 +1,5 @@
 import lvgl as lv
-from m5stack import power
+from m5stack import power, speaker
 
 import ALTelements as alte
 
@@ -115,10 +115,10 @@ class Title():
             The color of the status bar. (default is 0x000000 (black))
         """
         self.height = 26
-        self.green_wifi_path = "/flash/Icons/wifi_green.png"
-        self.red_wifi_path = "/flash/Icons/wifi_red.png"
-        self.green_cloud_path = "/flash/Icons/cloud_green.png"
-        self.red_cloud_path = "/flash/Icons/cloud_red.png"
+        self.green_wifi_path = "/flash/Assets/Icons/wifi_green.png"
+        self.red_wifi_path = "/flash/Assets/Icons/wifi_red.png"
+        self.green_cloud_path = "/flash/Assets/Icons/cloud_green.png"
+        self.red_cloud_path = "/flash/Assets/Icons/cloud_red.png"
         self.line = alte.Container(x=0, y=0, height=self.height, width=LV_HOR_RES, color=color, radius=0)
         self.left_label = alte.Label(self.line, x=6, y=5, text=text, text_color=text_color)
         self.battery_label = alte.Label(self.line, x=265, y=5, text=self._calc_battery_per(), text_color=text_color)
@@ -207,7 +207,7 @@ class Title():
 
         Assumes
         --------
-        flash/Icons/wifi_green.png exists.
+        flash/Assets/Icons/wifi_green.png exists.
 
         """
         if self.wifi_icon is None:
@@ -222,7 +222,7 @@ class Title():
 
         Assumes
         --------
-        flash/Icons/wifi_red.png exists.
+        flash/Assets/Icons/wifi_red.png exists.
 
         """
         if self.wifi_icon is None:
@@ -246,7 +246,7 @@ class Title():
 
         Assumes
         --------
-        flash/Icons/wifi_cloud.png exists.
+        flash/Assets/Icons/wifi_cloud.png exists.
 
         """
         if self.cloud_icon is None:
@@ -261,7 +261,7 @@ class Title():
 
         Assumes
         --------
-        flash/Icons/cloud_red.png exists.
+        flash/Assets/Icons/cloud_red.png exists.
 
         """
         if self.cloud_icon is None:
@@ -543,7 +543,7 @@ class Alert(_DialogBase):
             obj.start_auto_close(0)
 
     def __init__(self, text, text_color=_DEFAULT_TEXT_COLOR, title='', title_color=_DEFAULT_TEXT_COLOR, color=0xFFFFFF,
-                 close_func=None, *args):
+                 sound_alert=False, close_func=None, *args):
         """
         Parameters
         ----------
@@ -565,6 +565,8 @@ class Alert(_DialogBase):
         self.args = args
         if close_func != None:
             super().set_evt_cb_aux(self._mbox_event_cb_child)
+        if sound_alert:
+            speaker.playWAV('/flash/Assets/Audio/done.wav')
 
 
 class Confirmation(_DialogBase):
