@@ -138,6 +138,22 @@ def hPa_to_kPa(degree):
     """
     return float(degree / 10)
 
+def Pa_to_hPa(degree):
+    """
+    Converts pressure degrees in hPa to kPa
+
+    Parameters
+    ----------
+    degree : int
+        The degree in Pa.
+
+    Returns
+    -------
+    : float
+        The degree in hPa.
+    """
+    return float(degree / 100)
+
 
 """ WEATHER FROM API """
 

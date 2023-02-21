@@ -160,7 +160,7 @@ class Label(lv.label):
 
 
 class Checkbox(lv.checkbox):
-    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Checkbox', text_color=_DEFAULT_TEXT_COLOR,
+    def __init__(self, parent=lv.scr_act(), x=0, y=0, text='Checkbox', text_color=_DEFAULT_TEXT_COLOR, font=_DEFAULT_FONT,
                  color=_DEFAULT_THEME_COLOR, state=lv.btn.STATE.RELEASED):
         """
         Parameters
