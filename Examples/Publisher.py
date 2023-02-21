@@ -206,7 +206,7 @@ summarized_data = "REMOTE DATA SUMMARY\n"
 
 def send_summary_email():
     global summarized_data
-    email_client = GridEmail('Bearer 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',
+    email_client = GridEmail('',
                              'weathermon23@gmail.com')
     email_client.send_email(user_email, 'WeatherMon Data Summary', summarized_data)
     print(summarized_data)
