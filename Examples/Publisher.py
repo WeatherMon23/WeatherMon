@@ -7,6 +7,8 @@ from m5stack_ui import *
 from uiflow import *
 
 from ALTelements import *
+from ALTnotifications import *
+from ALTweather import *
 from ALTweb_server import *
 from ALTwidgets import *
 
@@ -17,11 +19,13 @@ LV_VER_RES = 240
 
 '''
     index 0: Green Theme
-    index 1: Light Theme
-    index 2: Dark Theme
+    index 1: Cyan Theme
+    index 2: Light Theme
+    index 3: Dark Theme
 '''
 theme_index = 0
-global_themes = [{'dark': 0x115400, 'light': 0x1C8900, 'font': 0xFFFFFF},
+global_themes = [{'dark': 0x196719, 'light': 0x228B22, 'font': 0xFFFFFF},
+                 {'dark': 0x004d4d, 'light': 0x008080, 'font': 0xFFFFFF},
                  {'dark': 0xD8D8D8, 'light': 0xFFFFFF, 'font': 0x000000},
                  {'dark': 0x000000, 'light': 0x2A2A2A, 'font': 0xFFFFFF}]
 
@@ -29,6 +33,7 @@ screen = M5Screen()
 screen.clean_screen()
 screen.set_screen_bg_color(global_themes[theme_index]['light'])
 
+user_email = None
 bps = None
 bps_temp = 0
 bps_pres = 0
@@ -54,8 +59,8 @@ pres_reads = [(0x00ff00, pres_list)]
 
 # ------------------------------------------------- #
 # -------------------- MQTT -------------------- #
-connect_wifi('TH', 'thomas1234')
-mqtt_con = M5mqtt('publisher', 'io.adafruit.com', 1883, 'WeatherMon', 'aio_RqUD02IMuP8XxkBI3Bv6lE7DJ2Vs', 300)
+connect_wifi('920-135', '135135920')
+mqtt_con = M5mqtt('publisher', 'io.adafruit.com', 1883, 'WeatherMon', 'aio_YqjD73Gok5v1nG27i29DPAujXL37', 300)
 mqtt_con.start()
 
 # ------------------------------------------------- #
@@ -178,7 +183,7 @@ def s_refresh_drop_event(obj, event):
         print(s_refresh_drop_option)
 
 
-theme_dict = {'Green': 0, 'Light': 1, 'Dark': 2}
+theme_dict = {'Green': 0, 'Cyan': 1, 'Light': 2, 'Dark': 3}
 rate_dict = {'Never': -1, '30 sec': 30, '1 min': 60, '2 min': 120}
 
 
@@ -201,10 +206,9 @@ summarized_data = "REMOTE DATA SUMMARY\n"
 
 def send_summary_email():
     global summarized_data
-    user_email = get_user_input(80, 'Provide your email address at:')
-    email_client = altn.GridEmail('Bearer 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',
-                                  'weathermon23@gmail.com')
-    email_client.send_email('user_email', 'WeatherMon Data Summary', summarized_data)
+    email_client = GridEmail('Bearer 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',
+                             'weathermon23@gmail.com')
+    email_client.send_email(user_email, 'WeatherMon Data Summary', summarized_data)
     print(summarized_data)
     pass
 
@@ -212,9 +216,9 @@ def send_summary_email():
 def export_event_handler(source, evt):
     global sum_list, summarized_data
     if evt == lv.EVENT.CLICKED:
-        if not sum_list:
-            empty_list_alert = Alert('There is no data to export!', text_color=global_themes[theme_index]['font'],
-                                     color=global_themes[theme_index]['light'])
+        if not user_email:
+            configure_email_alert = Alert('Please set an Email address', text_color=global_themes[theme_index]['font'],
+                                          color=global_themes[theme_index]['light'])
             return
 
         if refresh_rate != -1:
@@ -239,22 +243,52 @@ s_title = Label(parent=s_cont, x=5, y=5, text=lv.SYMBOL.SETTINGS + ' Settings', 
                 text_color=global_themes[theme_index]['font'])
 s_theme_label = Label(parent=s_cont, x=5, y=50, text='Theme: ', font=lv.font_montserrat_22,
                       text_color=global_themes[theme_index]['font'])
-s_theme_drop = Dropdown(parent=s_cont, x=100, y=45, options=['Green', 'Light', 'Dark'],
+s_theme_drop = Dropdown(parent=s_cont, x=95, y=45, options=['Green', 'Cyan', 'Light', 'Dark'],
                         color=global_themes[theme_index]['dark'])
-s_refresh_label = Label(parent=s_cont, x=5, y=85, text='Automatic refresh: ', font=lv.font_montserrat_22,
+
+s_refresh_label = Label(parent=s_cont, x=5, y=90, text='Automatic refresh: ', font=lv.font_montserrat_22,
                         text_color=global_themes[theme_index]['font'])
-s_refresh_drop = Dropdown(parent=s_cont, x=220, y=80, width=75, options=['Never', '30 sec', '1 min', '2 min'],
+s_refresh_drop = Dropdown(parent=s_cont, x=220, y=85, width=80, options=['Never', '30 sec', '1 min', '2 min'],
                           color=global_themes[theme_index]['dark'])
-s_bright_label = alte.Label(parent=s_cont, x=5, y=125, text='Brightness: ', font=lv.font_montserrat_22,
+
+s_bright_label = alte.Label(parent=s_cont, x=5, y=130, text='Brightness: ', font=lv.font_montserrat_22,
                             text_color=global_themes[theme_index]['font'])
-s_bright = BrightnessSlider(parent=s_cont, x=60, y=175, color=global_themes[theme_index]['font'], show_label=False)
-s_export = Button(parent=s_cont, x=85, y=205, text='Export Data', color=global_themes[theme_index]['dark'], height=35,
+s_bright = BrightnessSlider(parent=s_cont, x=150, y=150, width=150, color=global_themes[theme_index]['font'],
+                            show_label=False)
+
+s_power_save_label = Label(parent=s_cont, x=5, y=170, text='Power Save Mode: ', font=lv.font_montserrat_22,
+                           text_color=global_themes[theme_index]['font'])
+s_power_save_switch = Switch(parent=s_cont, x=215, y=165, color=global_themes[theme_index]['dark'])
+
+s_configure = Button(parent=s_cont, x=5, y=230, text='Set Email', color=global_themes[theme_index]['dark'], height=35,
+                     width=150, font=lv.font_montserrat_22)
+s_export = Button(parent=s_cont, x=160, y=230, text='Export Data', color=global_themes[theme_index]['dark'], height=35,
                   width=150, font=lv.font_montserrat_22)
-s_save = Button(parent=s_cont, x=110, y=250, text='Save', color=global_themes[theme_index]['dark'], height=35,
+s_save = Button(parent=s_cont, x=110, y=270, text='Save', color=global_themes[theme_index]['dark'], height=35,
                 width=100, font=lv.font_montserrat_22)
 
+
+def switch_handler(source, evt):
+    global s_bright, s_refresh_drop
+    if evt == lv.EVENT.CLICKED:
+        if source.get_state():
+            s_bright.set_value(0)
+            s_refresh_drop.set_selected(0)
+        else:
+            s_bright.set_value(100)
+            s_refresh_drop.set_selected(2)
+
+
+def email_handler(source, evt):
+    global user_email
+    if evt == lv.EVENT.CLICKED:
+        user_email = get_user_input(port=8080, alert_msg='Submit your email at:')
+
+
+s_configure.set_event_cb(email_handler)
 s_theme_drop.set_event_cb(s_theme_drop_event)
 s_refresh_drop.set_event_cb(s_refresh_drop_event)
+s_power_save_switch.set_event_cb(switch_handler)
 s_export.set_event_cb(export_event_handler)
 s_save.set_event_cb(save_event_handler)
 
@@ -344,8 +378,8 @@ btnC.wasPressed(btnC_pressed)
 
 # ------------------------------------------------- #
 # -------------------- GENERAL -------------------- #
-widgets_with_text = [temp_l, pres_l, s_title, s_theme_label, s_refresh_label,
-                     s_bright_label]  # s_units_label, s_units_F]
+widgets_with_text = [temp_l, pres_l, s_title, s_theme_label, s_refresh_label, s_bright_label,
+                     s_power_save_label]  # s_units_label, s_units_F]
 widgets_with_border = [s_theme_drop, s_refresh_drop, s_save, g_drop, g_temp, g_pres, refresh_btn]  # ,s_units_switch
 widgets_with_light_color = [s_cont, g_cont, m_cont]
 
@@ -375,9 +409,10 @@ def refresh_colors(index):
 
 def publish_the_unpublished():
     global unpublished_list, mqtt_con
-    print('Trying to republish the unpublished')
-    if unpublished_list:
-        mqtt_con.reconnect()
+    if not unpublished_list:
+        return
+    print('Trying to upload missing data')
+    mqtt_con.reconnect()
     for entry in unpublished_list:
         print('Republishing: ' + str(entry))
         json_data = {}
