@@ -6,16 +6,15 @@ from ALTutils import urlDecode, extract_string
 from ALTwidgets import Alert
 
 
-def get_user_input(port=80, alert_msg='Navigate to:'):
+def get_user_input(port=80, alert_msg = 'Navigate to:'):
     check_connection()
-
+    
     ip = wifiCfg.wlan_sta.ifconfig()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((ip[0], port))
     s.listen(5)
 
-    Alert(alert_msg + ' http://' + str(ip[0]) + ':' + str(port) + '/submit', 0x000000, '', 0x000000, 0xFFFFFF, None,
-          None)
+    print(alert_msg + ' http://' + str(ip[0]) + ':' + str(port) + '/submit')
 
     while 1:
         input_var = None
@@ -44,7 +43,7 @@ def get_user_input(port=80, alert_msg='Navigate to:'):
         conn.send('Connection: close\n\n')
         conn.sendall(response)
         conn.close()
-
+        
         if input_var:
             s.close()
             return input_var
