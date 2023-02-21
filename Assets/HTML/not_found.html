@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>404 - Page Not Found</title>
+    <style>
+        /* CSS styles */
+        body {
+            background-color: #f8f8f8;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: shake 0.5s;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #555;
+            animation: pulse 2s infinite;
+        }
+
+        p {
+            font-size: 24px;
+            margin-top: 0;
+            color: #999;
+            animation: bounce 1s infinite;
+        }
+
+        a {
+            color: #0066cc;
+            text-decoration: none;
+            border-bottom: 2px solid #0066cc;
+            transition: all 0.3s;
+        }
+
+        a:hover {
+            background-color: #0066cc;
+            color: #fff;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-20px);
+            }
+            40% {
+                transform: translateX(20px);
+            }
+            60% {
+                transform: translateX(-20px);
+            }
+            80% {
+                transform: translateX(20px);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>404</h1>
+    <p>Page Not Found</p>
+</div>
+</body>
+</html>
