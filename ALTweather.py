@@ -50,7 +50,7 @@ def fetch_time(timezone=3, host='time.google.com'):
         check_connection()
     except Exception as e:
         return _NULL_TIME
-    rtc.settime('ntp', host=host, tzone=3)
+    rtc.settime('ntp', host=host, tzone=timezone)
     time_info = rtc.datetime()
     return uti.add_left_zero(str(time_info[4])) + str(":") + uti.add_left_zero(str(time_info[5]))
 
@@ -77,7 +77,7 @@ def fetch_date_time(timezone=3, host='time.google.com'):
         check_connection()
     except Exception as e:
         return _NULL_DATE_TIME
-    rtc.settime('ntp', host=host, tzone=3)
+    rtc.settime('ntp', host=host, tzone=timezone)
     time_info = rtc.datetime()
     res = uti.add_left_zero(str(time_info[2])) + str(' ') + _get_month(time_info[1]) + str(' ') + uti.add_left_zero(
         str(time_info[4])) + str(":") + uti.add_left_zero(str(time_info[5]))
@@ -137,6 +137,7 @@ def hPa_to_kPa(degree):
         The degree in kPa.
     """
     return float(degree / 10)
+
 
 def Pa_to_hPa(degree):
     """
