@@ -8,7 +8,7 @@ from ALTutils import urlDecode, extract_string
 
 def get_user_input(port=80, alert_msg='Navigate to:', AP=False):
     """
-    Hosts a webpage on the specified port to gather user input
+    Hosts a webpage on the specified port to gather user input / Enables AP mode.
 
     Parameters
     ----------

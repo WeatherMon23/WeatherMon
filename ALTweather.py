@@ -35,7 +35,7 @@ def fetch_time(timezone=3, host='time.google.com'):
     Parameters
     ----------
     timezone : int
-        The timezone wanted.
+        Needed timezone.
     host : str
         The host ntp server used.
 
@@ -62,7 +62,7 @@ def fetch_date_time(timezone=3, host='time.google.com'):
     Parameters
     ----------
     timezone : int
-        The timezone wanted.
+        Needed timezone.
     host : str
         The host ntp server used.
 
