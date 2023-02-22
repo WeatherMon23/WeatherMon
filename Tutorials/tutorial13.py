@@ -1,14 +1,9 @@
-'''
-import lvgl as lv
-import wifiCfg
-from m5mqtt import M5mqtt
-from ALTweather import *
-'''
 from m5stack_ui import *
 from ALTwidgets import *
 from ALTelements import *
 from ALTconnection import *
-
+from ALTweather import *
+import uiflow
 ## Creating the screen we want to display our content at ##
 screen = M5Screen()
 screen.clean_screen()
@@ -30,7 +25,7 @@ picker_widget = board.draw_widget(2, 2, 0, 3, 0x0F52BA)
 weather_widget2 = board.draw_widget(1, 2, 2, 3, 0x088F8F)
 
 ## Display elements on the widgets ##
-image = Image(parent=image_widget, x=35, y=35, src='/flash/Icons/globe.png')
+image = Image(parent=image_widget, x=35, y=35, src='/flash/Assets/Icons/globe.png')
 label = Label(parent=image_widget, x=3, y=3, text='My Globe', font=lv.font_montserrat_18, text_color=0xFFFFFF)
 checkbox1 = Checkbox(parent=checkBox_widget, x=0, y=0, text='My CheckBox 1', text_color=0xFFFFFF, color=0x000000)
 line = Line(parent=checkBox_widget, x=0, y=25, length=200, is_vertical=True, width=2, color=0x000000)
@@ -41,11 +36,11 @@ temp_disc = Label(parent=weather_widget2, x=7, y=20, text='Cloudy', font=lv.font
                   width=116, long_mode=lv.label.LONG.BREAK, alignment=lv.label.ALIGN.LEFT)
 temp_pres = Label(parent=weather_widget2, x=7, y=35, text='1007.3 hPa', font=lv.font_montserrat_14, text_color=0xFFFFFF)
 uv_text = Label(parent=weather_widget, x=5, y=5, text='UV', font=lv.font_montserrat_30)
-uv_icon = Image(parent=weather_widget, x=15, y=50, src='/flash/Icons/uv.png')
+uv_icon = Image(parent=weather_widget, x=15, y=50, src='/flash/Assets/Icons/uv.png')
 uv_val = Label(parent=weather_widget, x=20, y=85, text='3', font=lv.font_montserrat_30)
 
-wifi_SSD = ""
-wifi_pass = ""
+wifi_SSD = "Lareine's iPhone"
+wifi_pass = "2rffx73lukv8"
 
 ## Connecting to wifi ##
 connect_wifi(wifi_SSD, wifi_pass)
@@ -73,8 +68,8 @@ while True:
 def refresh_minor():
     global time_date
     time_date = fetch_date_time()
-    t.set_text(time_date)
-    t.show_battery()
+    title.set_text(time_date)
+    title.show_battery()
     connect_wifi()
 
 
@@ -85,7 +80,7 @@ def refresh_major():
     temp_val.set_text(str(weather_dict['temperature']) + 'C')
     temp_disc.set_text(str(weather_dict['description']))
     temp_pres.set_text(str(weather_dict['pressure']) + ' hPa')
-    uv_val.set_text(str(weather_dict['uv-index']))
+    #uv_val.set_text(str(weather_dict['uv-index']))
     uv_icon.set_src(str(weather_dict['icon-url']))
     uv_icon.set_pos(-22, -22)
 
