@@ -18,18 +18,19 @@ LV_HOR_RES = 320
 LV_VER_RES = 240
 
 '''
-    index 0: Green Theme
-    index 1: Light Theme
-    index 2: Dark Theme
+    index 0: Original Theme
+    index 1: Green Theme
+    index 2: Light Theme
+    index 3: Dark Theme
 '''
 DEFAULT_THEME = 0
-global_themes = [{'dark' : 0x00093D, 'light' : 0x000D54, 'font' : 0xFFFFFF},
-                 {'dark' : 0x115400, 'light' : 0x1C8900, 'font' : 0xFFFFFF},
-                 {'dark' : 0xD8D8D8, 'light' : 0xFFFFFF, 'font' : 0x000000},
-                 {'dark' : 0x000000, 'light' : 0x2A2A2A, 'font' : 0xFFFFFF}]
+global_themes = [{'dark': 0x003333, 'light': 0x006666, 'font': 0xFFFFFF},
+                 {'dark': 0x115400, 'light': 0x1C8900, 'font': 0xFFFFFF},
+                 {'dark': 0xD8D8D8, 'light': 0xFFFFFF, 'font': 0x000000},
+                 {'dark': 0x000000, 'light': 0x2A2A2A, 'font': 0xFFFFFF}]
 
-w_colors = {'temp' : 0x1DAD00, 'icon' : 0x1DAD00, 'uv' : 0xD0DE00, 'humid' : 0x6A0038, 'remote' : 0x7400B7, 'wind' : 0x009FA6,
-            'light_bg' : 0x000D54, 'dark_bg' : 0x00093D, 'font' : 0xFFFFFF}
+w_colors = {'temp': 0xB8860B, 'icon': 0xffe033, 'uv': 0xFFD700, 'humid': 0x00cccc, 'remote': 0xA52A2A, 'wind': 0x4169E1,
+            'light_bg': 0x006666, 'dark_bg': 0x003333, 'font': 0xFFFFFF}
 
 screen = M5Screen()
 screen.clean_screen()
@@ -65,52 +66,64 @@ w_humid = b.draw_widget(1, 2, 2, 0, w_colors['humid'])
 w_uv = b.draw_widget(2, 1, 1, 2, w_colors['uv'])
 w_wind = b.draw_widget(1, 2, 2, 3, w_colors['wind'])
 
-temp_val = alte.Label(parent=w_temp, x=4, y=5, text= '00' + units, font=lv.font_montserrat_48, text_color=w_colors['font'])
-temp_disc = alte.Label(parent=w_temp, x=7, y=55, text='Cloudy', font=lv.font_montserrat_18, text_color=w_colors['font'],
-                     width=116, long_mode=lv.label.LONG.BREAK, alignment=lv.label.ALIGN.LEFT)
-temp_pres = alte.Label(parent=w_temp, x=7, y=98, text='0000 hPa', font=lv.font_montserrat_18, text_color=w_colors['font'])
+temp_val = alte.Label(parent=w_temp, x=4, y=5, text='N/A ' + units, font=lv.font_montserrat_38,
+                      text_color=w_colors['font'])
+temp_disc = alte.Label(parent=w_temp, x=7, y=55, text='N/A', font=lv.font_montserrat_18, text_color=w_colors['font'],
+                       width=116, long_mode=lv.label.LONG.BREAK, alignment=lv.label.ALIGN.LEFT)
+temp_pres = alte.Label(parent=w_temp, x=7, y=98, text='N/A hPa', font=lv.font_montserrat_18,
+                       text_color=w_colors['font'])
 
 icon_icon = alte.Image(parent=w_icon, x=3, y=3, src='/flash/Assets/Icons/error.png')
 
-uv_text = alte.Label(parent=w_uv, x=5, y=5, text='UV', font=lv.font_montserrat_30)
-uv_icon = alte.Image(parent=w_uv, x=3, y=33, src='/flash/Assets/Icons/uv.png')
-uv_val = alte.Label(parent=w_uv, x=20, y=85, text='3', font=lv.font_montserrat_30)
+uv_text = alte.Label(parent=w_uv, x=7, y=5, text='UV', font=lv.font_montserrat_26)
+uv_icon = alte.Image(parent=w_uv, x=7, y=40, src='/flash/Assets/Icons/uv.png')
+uv_val = alte.Label(parent=w_uv, x=22, y=85, text='3', font=lv.font_montserrat_26)
 
-humid_val = alte.Label(parent=w_humid, x=5, y=13, text='00%', font=lv.font_montserrat_30, text_color=w_colors['font'])
+humid_val = alte.Label(parent=w_humid, x=5, y=13, text='N/A%', font=lv.font_montserrat_30, text_color=w_colors['font'])
 humid_icon = alte.Image(parent=w_humid, x=82, y=17, src='/flash/Assets/Icons/humidity.png')
 
-remote_title = alte.Label(parent=w_remote, x=10, y=5, text='Remote\nM5stack', font=lv.font_montserrat_22,
-                        text_color=w_colors['font'])
-remote_disc = alte.Label(parent=w_remote, x=6, y=72, text='Temp: 00' + units, font=lv.font_montserrat_18, text_color=w_colors['font'])
-remote_pres = alte.Label(parent=w_remote, x=7, y=95, text='0000 hPa', font=lv.font_montserrat_18, text_color=w_colors['font'])
+remote_title = alte.Label(parent=w_remote, x=10, y=5, text='Remote\nM5Stack', font=lv.font_montserrat_22,
+                          text_color=w_colors['font'])
+remote_disc = alte.Label(parent=w_remote, x=6, y=72, text='Temp: N/A' + units, font=lv.font_montserrat_18,
+                         text_color=w_colors['font'])
+remote_pres = alte.Label(parent=w_remote, x=7, y=95, text='N/A hPa', font=lv.font_montserrat_18,
+                         text_color=w_colors['font'])
 
-wind_val = alte.Label(parent=w_wind, x=5, y=13, text='00 m/s', font=lv.font_montserrat_26, text_color=w_colors['font'])
+wind_val = alte.Label(parent=w_wind, x=5, y=13, text='N/A m/s', font=lv.font_montserrat_26, text_color=w_colors['font'])
 # --------------------------------------------------------------- #
 
 # ---------------------- Settings Page ---------------------------#
 
 s_theme_drop_option = 'Original'
+
+
 def s_theme_drop_event(obj, event):
     global s_theme_drop_option
     if event == lv.EVENT.VALUE_CHANGED:
-        option = " "*15 #Should be large enough to store the option
+        option = " " * 15  # Should be large enough to store the option
         obj.get_selected_str(option, len(option))
         s_theme_drop_option = str(option.strip())
         s_theme_drop_option = s_theme_drop_option[:len(s_theme_drop_option) - 1]
         print(s_theme_drop_option)
 
+
 s_refresh_drop_option = '2 min'
+
+
 def s_refresh_drop_event(obj, event):
     global s_refresh_drop_option
     if event == lv.EVENT.VALUE_CHANGED:
-        option = " "*15 #Should be large enough to store the option
+        option = " " * 15  # Should be large enough to store the option
         obj.get_selected_str(option, len(option))
         s_refresh_drop_option = str(option.strip())
         s_refresh_drop_option = s_refresh_drop_option[:len(s_refresh_drop_option) - 1]
         print(s_refresh_drop_option)
 
-theme_dict = {'Original' : 0 , 'Green' : 1, 'Light' : 2, 'Dark' : 3}
-rate_dict = {'2 min' : 120, '5 min' : 300, '10 min' : 600, '20 min' : 1200}
+
+theme_dict = {'Original': 0, 'Green': 1, 'Light': 2, 'Dark': 3}
+rate_dict = {'2 min': 120, '5 min': 300, '10 min': 600, '20 min': 1200}
+
+
 def manage_settings():
     global major_refresh_rate, s_refresh_drop_option, s_theme_drop_option, units, theme_dict, rate_dict
     units_old = units
@@ -118,38 +131,64 @@ def manage_settings():
     major_refresh_rate = rate_dict[s_refresh_drop_option]
     refresh_colors(theme_dict[s_theme_drop_option])
 
-def event_handler(source,evt):
+
+def event_handler(source, evt):
     if evt == lv.EVENT.CLICKED:
         manage_settings()
         btnA_pressed()
         print('Settings have been saved!')
 
-        
 
-s_cont = alte.Page(x=0, y=t.get_height(), height=LV_VER_RES - t.get_height(), width=LV_HOR_RES, color=w_colors['light_bg'], radius=0)
+s_cont = alte.Page(x=0, y=t.get_height(), height=LV_VER_RES - t.get_height(), width=LV_HOR_RES,
+                   color=w_colors['light_bg'], radius=0)
 s_cont.set_hidden(True)
-s_title = alte.Label(parent=s_cont, x=5, y=5, text=lv.SYMBOL.SETTINGS + ' Settings', font=lv.font_montserrat_30, text_color=w_colors['font'])
-s_theme_label = alte.Label(parent=s_cont, x=5, y=50, text='Theme: ', font=lv.font_montserrat_22, text_color=w_colors['font'])
-s_theme_drop = alte.Dropdown(parent=s_cont, x=100, y=45, options=['Original', 'Green', 'Light', 'Dark'], color=w_colors['dark_bg'])
-s_refresh_label = alte.Label(parent=s_cont, x=5, y=85, text='Major refresh rate: ', font=lv.font_montserrat_22, text_color=w_colors['font'])
-s_refresh_drop = alte.Dropdown(parent=s_cont, x=220, y=80, width=75, options=['2 min', '5 min', '10 min', '20 min'], color=w_colors['dark_bg'])
-s_bright_label = alte.Label(parent=s_cont, x=5, y=125, text='Brightness: ', font=lv.font_montserrat_22, text_color=w_colors['font'])
-s_bright = altw.BrightnessSlider(parent=s_cont, x=60, y=175, color=w_colors['font'], show_label=False)
-s_save = alte.Button(parent=s_cont, x=110, y=205, text='Save', color=w_colors['dark_bg'], height=35, width=100, font=lv.font_montserrat_22)
+s_title = alte.Label(parent=s_cont, x=5, y=5, text=lv.SYMBOL.SETTINGS + ' Settings', font=lv.font_montserrat_30,
+                     text_color=w_colors['font'])
+s_theme_label = alte.Label(parent=s_cont, x=5, y=50, text='Theme: ', font=lv.font_montserrat_22,
+                           text_color=w_colors['font'])
+s_theme_drop = alte.Dropdown(parent=s_cont, x=95, y=45, options=['Original', 'Green', 'Light', 'Dark'],
+                             color=w_colors['dark_bg'])
+s_refresh_label = alte.Label(parent=s_cont, x=5, y=90, text='Major refresh rate: ', font=lv.font_montserrat_22,
+                             text_color=w_colors['font'])
+s_refresh_drop = alte.Dropdown(parent=s_cont, x=220, y=85, width=80, options=['2 min', '5 min', '10 min', '20 min'],
+                               color=w_colors['dark_bg'])
+s_bright_label = alte.Label(parent=s_cont, x=5, y=130, text='Brightness: ', font=lv.font_montserrat_22,
+                            text_color=w_colors['font'])
+s_bright = altw.BrightnessSlider(parent=s_cont, x=150, y=150, width=150, color=w_colors['font'], show_label=False)
+s_power_save_label = Label(parent=s_cont, x=5, y=170, text='Power Save Mode: ', font=lv.font_montserrat_22,
+                           text_color=global_themes[theme_index]['font'])
+s_power_save_switch = Switch(parent=s_cont, x=215, y=165, color=global_themes[theme_index]['dark'])
+s_power_save_switch.set_event_cb(switch_handler)
+s_save = alte.Button(parent=s_cont, x=110, y=210, text='Save', color=w_colors['dark_bg'], height=35, width=100,
+                     font=lv.font_montserrat_22)
 
 s_theme_drop.set_event_cb(s_theme_drop_event)
 s_refresh_drop.set_event_cb(s_refresh_drop_event)
-#s_units_switch.set_event_cb(s_units_switch_event)
+# s_units_switch.set_event_cb(s_units_switch_event)
 s_save.set_event_cb(event_handler)
+
+
+def switch_handler(source, evt):
+    global s_bright, s_refresh_drop
+    if evt == lv.EVENT.CLICKED:
+        if source.get_state():
+            s_bright.set_value(0)
+            s_refresh_drop.set_selected(0)
+        else:
+            s_bright.set_value(100)
+            s_refresh_drop.set_selected(2)
+
 
 # --------------------------------------------------------------- #
 
 # ---------------------- Gauges Page ---------------------------#
 g_drop_option = 'Local Temp'
+
+
 def g_gauge_drop_event(obj, event):
     global g_drop_option
     if event == lv.EVENT.VALUE_CHANGED:
-        option = " "*20 #Should be large enough to store the option
+        option = " " * 20  # Should be large enough to store the option
         obj.get_selected_str(option, len(option))
         g_drop_option = option.strip()
         g_drop_option = g_drop_option[:g_drop_option.find('(') - 1]
@@ -174,18 +213,26 @@ def g_gauge_drop_event(obj, event):
             g_pres.set_value(remote_pressure)
             print(str(g_drop_option + str(' ') + str(remote_pressure)))
 
-g_cont = alte.Page(x=0, y=t.get_height(), height=LV_VER_RES - t.get_height(), width=LV_HOR_RES, color=w_colors['light_bg'], radius=0)
-g_drop = alte.Dropdown(parent=g_cont, x=35, y=5, width=250, options=['Local Temp (' + units +')', 'Remote Temp (' + units +')', 'Local Pressure (hPa)', 'Remote Pressure (hPa)'], color=w_colors['dark_bg'])
+
+g_cont = alte.Page(x=0, y=t.get_height(), height=LV_VER_RES - t.get_height(), width=LV_HOR_RES,
+                   color=w_colors['light_bg'], radius=0)
+g_drop = alte.Dropdown(parent=g_cont, x=35, y=5, width=250,
+                       options=['Local Temp (' + units + ')', 'Remote Temp (' + units + ')', 'Local Pressure (hPa)',
+                                'Remote Pressure (hPa)'], color=w_colors['dark_bg'])
 g_temp = alte.Gauge(parent=g_cont, x=80, y=44, gauge_color=0xFF0000, length=160, initial_value=0, max_value=50)
-g_pres = alte.Gauge(parent=g_cont, x=80, y=44, gauge_color=0xFF0000, length=160, initial_value=900, min_value = 900, max_value=1100)
+g_pres = alte.Gauge(parent=g_cont, x=80, y=44, gauge_color=0xFF0000, length=160, initial_value=900, min_value=900,
+                    max_value=1100)
 g_pres.set_hidden(True)
 g_cont.set_hidden(True)
 g_drop.set_event_cb(g_gauge_drop_event)
+
+
 # --------------------------------------------------------------- #
 # ---------------------- Main Page Funcs ---------------------------#
 def main_page_change_state(hidden):
     global b
     b.set_hidden(hidden)
+
 
 # --------------------------------------------------------------- #
 # ---------------------- Settings Page Funcs ---------------------------#
@@ -193,12 +240,14 @@ def settings_page_change_state(hidden):
     global s_cont
     s_cont.set_hidden(hidden)
 
+
 # --------------------------------------------------------------- #
 # ---------------------- Gauge Page Funcs ---------------------------#
 def gauge_page_change_state(hidden):
     global g_cont
     g_cont.set_hidden(hidden)
     pass
+
 
 # --------------------------------------------------------------- #
 # ---------------------- Buttons A,B,C ---------------------------#
@@ -208,11 +257,13 @@ def btnA_pressed():
     gauge_page_change_state(hidden=True)
     pass
 
+
 def btnB_pressed():
     main_page_change_state(hidden=True)
     settings_page_change_state(hidden=False)
     gauge_page_change_state(hidden=True)
     pass
+
 
 def btnC_pressed():
     main_page_change_state(hidden=True)
@@ -220,15 +271,18 @@ def btnC_pressed():
     gauge_page_change_state(hidden=False)
     pass
 
+
 btnA.wasPressed(btnA_pressed)
 btnB.wasPressed(btnB_pressed)
 btnC.wasPressed(btnC_pressed)
+
 
 # --------------------------------------------------------------- #
 # ---------------------- MQTT ---------------------------#
 def alert_close_func():
     global alert_flag
     alert_flag = True
+
 
 def fetch_data(topic_data):
     global remote_temp, remote_pressure, units, alert_flag
@@ -239,32 +293,36 @@ def fetch_data(topic_data):
         remote_temp = int(json_data['temperature'])
     else:
         remote_temp = C_to_F(int(json_data['temperature']))
-    
+
     if alert_flag:
         alert_flag = False
-        a = altw.Alert(text='BPS has detected ubnormal temperature.', text_color=global_themes[theme_dict[s_theme_drop_option]]['font'], title=lv.SYMBOL.WARNING + " Warning!", title_color=0xFF0000,
-                  color=global_themes[theme_dict[s_theme_drop_option]]['light'], close_func=alert_close_func)
-        #email_client = altn.GridEmail('', 'weathermon23@gmail.com')
-        #email_client.send_email('', 'WeatherMon Station Update', 'BPS Has Detected Abnormal Temperature')
-    
+        a = altw.Alert(text='BPS has detected ubnormal temperature.',
+                       text_color=global_themes[theme_dict[s_theme_drop_option]]['font'],
+                       title=lv.SYMBOL.WARNING + " Warning!", title_color=0xFF0000,
+                       color=global_themes[theme_dict[s_theme_drop_option]]['light'], close_func=alert_close_func)
+        # email_client = altn.GridEmail('', 'weathermon23@gmail.com')
+        # email_client.send_email('', 'WeatherMon Station Update', 'BPS Has Detected Abnormal Temperature')
+
     g_pres.set_value(remote_pressure)
     g_temp.set_value(remote_temp)
     remote_disc.set_text('Temp: ' + str(remote_temp) + units)
     remote_pres.set_text(str(remote_pressure) + ' hPa')
     pass
 
-connect_wifi("", "")
-m5mqtt = M5mqtt('subscriber', 'io.adafruit.com', 1883, 'WeatherMon', '', 300)
+
+connect_wifi('920-135', '135135920')
+m5mqtt = M5mqtt('subscriber', 'io.adafruit.com', 1883, 'WeatherMon', 'aio_ayLf08cVEm8q3E6KKB3IkIk2JmLh', 300)
 m5mqtt.subscribe(str('WeatherMon/feeds/weathermonfeed'), fetch_data)
 m5mqtt.start()
 
 # --------------------------------------------------------------- #
 # ---------------------- General ---------------------------#
-widgets_with_text = [temp_val, temp_disc, temp_pres, uv_text, uv_val, humid_val, wind_val, remote_title, remote_disc, 
-                    remote_pres, s_title, s_theme_label, s_refresh_label, s_bright_label] #s_units_label, s_units_F]
+widgets_with_text = [temp_val, temp_disc, temp_pres, uv_text, uv_val, humid_val, wind_val, remote_title, remote_disc,
+                     remote_pres, s_title, s_theme_label, s_refresh_label, s_bright_label]  # s_units_label, s_units_F]
 widgets_with_dark_color = [w_temp, w_icon, w_remote, w_uv, w_wind, w_humid]
-widgets_with_border = [s_theme_drop, s_refresh_drop, s_save, g_drop, g_temp, g_pres] # ,s_units_switch
+widgets_with_border = [s_theme_drop, s_refresh_drop, s_save, g_drop, g_temp, g_pres]  # ,s_units_switch
 widgets_with_light_color = [s_cont, g_cont]
+
 
 def refresh_colors(index):
     light_bg_color = None
@@ -288,23 +346,24 @@ def refresh_colors(index):
 
         for widget in widgets_with_dark_color:
             widget.set_style_local_bg_color(widget.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(dark_bg_color))
-        
+
     screen.set_screen_bg_color(light_bg_color)
 
     for widget in widgets_with_light_color:
         widget.set_style_local_bg_color(widget.PART.BG, lv.STATE.DEFAULT, lv.color_hex(light_bg_color))
-    
+
     for widget in widgets_with_border:
         widget.set_style_local_border_color(widget.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(dark_bg_color))
         widget.set_style_local_border_color(widget.PART.MAIN, lv.STATE.FOCUSED, lv.color_hex(dark_bg_color))
 
     for widget in widgets_with_text:
         widget.set_style_local_text_color(widget.PART.MAIN, lv.STATE.DEFAULT, lv.color_hex(font_color))
-    
+
     s_bright.set_style_local_bg_color(s_bright.PART.INDIC, lv.STATE.DEFAULT, lv.color_hex(font_color))
     s_bright.set_style_local_bg_color(s_bright.PART.KNOB, lv.STATE.DEFAULT, lv.color_hex(font_color))
     t.set_color(dark_bg_color)
     t.set_text_color(font_color)
+
 
 def refresh_minor():
     global time_date
