@@ -17,8 +17,8 @@ Technology, with guidance from [Interdisciplinary Center for Smart Technologies]
 2. Generate [SendGrid](https://docs.sendgrid.com/for-developers/sending-email/api-getting-started)
    and [Twilio](https://www.twilio.com/docs/usage/tutorials/how-to-use-your-free-trial-account) API keys and
    update [Secrets.json](Secrets.json) accordingly.
-3. Build Your first project by
-   reading [Starter Tutorials](https://docs.google.com/document/d/1rzM6ghP-TxwVlcws6WDDN8_cuASt5gPu/).
+3. Learn the basics in [Starter Tutorials](https://drive.google.com/drive/u/2/folders/1BmNCYGrBzFLMrn22HYkq3dSfrm5wBcno/), and their matching code snippets under [Tutorials](Tutorials).
+4. Time to build your own project :)
 
 ## Project Structure
 
