@@ -267,7 +267,6 @@ s_export = Button(parent=s_cont, x=160, y=230, text='Export Data', color=global_
 s_save = Button(parent=s_cont, x=110, y=270, text='Save', color=global_themes[theme_index]['dark'], height=35,
                 width=100, font=lv.font_montserrat_22)
 
-
 def switch_handler(source, evt):
     global s_bright, s_refresh_drop
     if evt == lv.EVENT.CLICKED:
