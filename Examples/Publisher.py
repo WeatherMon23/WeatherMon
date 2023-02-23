@@ -272,11 +272,11 @@ def switch_handler(source, evt):
     global s_bright, s_refresh_drop
     if evt == lv.EVENT.CLICKED:
         if source.get_state():
-            s_bright.set_value(0)
+            s_bright.set_value(3)
             s_refresh_drop.set_selected(0)
         else:
             s_bright.set_value(100)
-            s_refresh_drop.set_selected(2)
+            s_refresh_drop.set_selected(0)
 
 
 def email_handler(source, evt):
