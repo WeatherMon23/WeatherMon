@@ -13,11 +13,9 @@ screen = M5Screen()
 screen.clean_screen()
 screen.set_screen_bg_color(0xB6D0E2)
 
-wifi_SSD = "Cellcom-WiFi_01"
-wifi_pass = "0503322407"
 
 ## Connecting to wifi ##
-connect_wifi(wifi_SSD, wifi_pass)
+connect_wifi("TH", "thomas1234")
 m5mqtt = M5mqtt('kjgwdd', 'io.adafruit.com', 1883, 'WeatherMon', 'aio_Hzae8396FuVde9G4ORx1ap1nWmdy', 300)
 m5mqtt.start()
 
