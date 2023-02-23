@@ -139,6 +139,17 @@ def event_handler(source, evt):
         print('Settings have been saved!')
 
 
+def switch_handler(source, evt):
+    global s_bright, s_refresh_drop
+    if evt == lv.EVENT.CLICKED:
+        if source.get_state():
+            s_bright.set_value(3)
+            s_refresh_drop.set_selected(0)
+        else:
+            s_bright.set_value(100)
+            s_refresh_drop.set_selected(0)
+
+
 s_cont = alte.Page(x=0, y=t.get_height(), height=LV_VER_RES - t.get_height(), width=LV_HOR_RES,
                    color=w_colors['light_bg'], radius=0)
 s_cont.set_hidden(True)
@@ -155,9 +166,9 @@ s_refresh_drop = alte.Dropdown(parent=s_cont, x=220, y=85, width=80, options=['2
 s_bright_label = alte.Label(parent=s_cont, x=5, y=130, text='Brightness: ', font=lv.font_montserrat_22,
                             text_color=w_colors['font'])
 s_bright = altw.BrightnessSlider(parent=s_cont, x=150, y=150, width=150, color=w_colors['font'], show_label=False)
-s_power_save_label = Label(parent=s_cont, x=5, y=170, text='Power Save Mode: ', font=lv.font_montserrat_22,
-                           text_color=global_themes[theme_index]['font'])
-s_power_save_switch = Switch(parent=s_cont, x=215, y=165, color=global_themes[theme_index]['dark'])
+s_power_save_label = alte.Label(parent=s_cont, x=5, y=170, text='Power Save Mode: ', font=lv.font_montserrat_22,
+                                text_color=global_themes[0]['font'])
+s_power_save_switch = alte.Switch(parent=s_cont, x=215, y=165, color=global_themes[0]['dark'])
 s_power_save_switch.set_event_cb(switch_handler)
 s_save = alte.Button(parent=s_cont, x=110, y=210, text='Save', color=w_colors['dark_bg'], height=35, width=100,
                      font=lv.font_montserrat_22)
@@ -166,18 +177,6 @@ s_theme_drop.set_event_cb(s_theme_drop_event)
 s_refresh_drop.set_event_cb(s_refresh_drop_event)
 # s_units_switch.set_event_cb(s_units_switch_event)
 s_save.set_event_cb(event_handler)
-
-
-def switch_handler(source, evt):
-    global s_bright, s_refresh_drop
-    if evt == lv.EVENT.CLICKED:
-        if source.get_state():
-            s_bright.set_value(0)
-            s_refresh_drop.set_selected(0)
-        else:
-            s_bright.set_value(100)
-            s_refresh_drop.set_selected(2)
-
 
 # --------------------------------------------------------------- #
 
@@ -310,8 +309,8 @@ def fetch_data(topic_data):
     pass
 
 
-connect_wifi('920-135', '135135920')
-m5mqtt = M5mqtt('subscriber', 'io.adafruit.com', 1883, 'WeatherMon', 'aio_ayLf08cVEm8q3E6KKB3IkIk2JmLh', 300)
+connect_wifi('TH', 'thomas1234')
+m5mqtt = M5mqtt('subscriber', 'io.adafruit.com', 1883, 'WeatherMon', '', 300)
 m5mqtt.subscribe(str('WeatherMon/feeds/weathermonfeed'), fetch_data)
 m5mqtt.start()
 

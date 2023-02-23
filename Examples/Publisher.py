@@ -59,8 +59,8 @@ pres_reads = [(0x00ff00, pres_list)]
 
 # ------------------------------------------------- #
 # -------------------- MQTT -------------------- #
-connect_wifi('920-135', '135135920')
-mqtt_con = M5mqtt('publisher', 'io.adafruit.com', 1883, 'WeatherMon', 'aio_YqjD73Gok5v1nG27i29DPAujXL37', 300)
+connect_wifi('TH', 'thomas1234')
+mqtt_con = M5mqtt('publisher', 'io.adafruit.com', 1883, 'WeatherMon', '', 300)
 mqtt_con.start()
 
 # ------------------------------------------------- #
