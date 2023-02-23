@@ -3,10 +3,9 @@ Tutorial 10 example -- Sending an SMS
 '''
 from m5stack import *
 from ALTnotifications import *
-# from ALTconnection import *
 from ALTwidgets import *
 from ALTelements import *
-# import time
+
 
 ## Creating the screen we want to display our content at ##
 screen = M5Screen()
